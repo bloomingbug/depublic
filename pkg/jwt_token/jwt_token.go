@@ -1,30 +1,23 @@
-package token
+package jwt_token
 
-import "github.com/golang-jwt/jwt/v5"
+import (
+	"github.com/golang-jwt/jwt/v5"
+)
 
-type TokenUseCase interface {
-	GenerateAccessToken(claims JwtCustomClaims) (string, error)
-}
-
-type tokenUseCase struct {
+type jwtToken struct {
 	secretKey string
 }
 
 type JwtCustomClaims struct {
 	ID     string `json:"id"`
+	Name   string `json:"name"`
 	Email  string `json:"email"`
 	Role   string `json:"role"`
 	Avatar string `json:"avatar"`
 	jwt.RegisteredClaims
 }
 
-func NewTokenUseCase(secretKey string) *tokenUseCase {
-	return &tokenUseCase{
-		secretKey: secretKey,
-	}
-}
-
-func (t *tokenUseCase) GenerateAccessToken(claims JwtCustomClaims) (string, error) {
+func (t *jwtToken) GenerateAccessToken(claims JwtCustomClaims) (string, error) {
 	plainToken := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
 
 	encodedToken, err := plainToken.SignedString([]byte(t.secretKey))
@@ -34,4 +27,14 @@ func (t *tokenUseCase) GenerateAccessToken(claims JwtCustomClaims) (string, erro
 	}
 
 	return encodedToken, nil
+}
+
+type JwtToken interface {
+	GenerateAccessToken(claims JwtCustomClaims) (string, error)
+}
+
+func NewJwtToken(secretKey string) JwtToken {
+	return &jwtToken{
+		secretKey: secretKey,
+	}
 }

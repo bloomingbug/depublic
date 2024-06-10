@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/bloomingbug/depublic/config"
+	"github.com/bloomingbug/depublic/configs"
 	"github.com/redis/go-redis/v9"
 )
 
-func InitCache(config *config.RedisConfig) *redis.Client {
+func InitCache(config *configs.RedisConfig) *redis.Client {
 	rdb := redis.NewClient(&redis.Options {
 		Addr: fmt.Sprintf("%s:%s", config.Host, config.Port),
 		Password: config.Password,

@@ -1,19 +1,30 @@
 package main
 
 import (
-	"github.com/bloomingbug/depublic/config"
+	"github.com/bloomingbug/depublic/configs"
+	"github.com/bloomingbug/depublic/internal/builder"
+	"github.com/bloomingbug/depublic/pkg/cache"
+	"github.com/bloomingbug/depublic/pkg/jwt_token"
+	"github.com/bloomingbug/depublic/pkg/postgres"
+	"github.com/bloomingbug/depublic/pkg/server"
 )
 
 func main() {
-	_, err := config.NewConfig(".env")
+	cfg, err := configs.NewConfig(".env")
 	checkError(err)
 
-	// postgres, err := postgres.InitProgres(&cfg.Postgres)
-	// checkError(err)
+	postgres, err := postgres.InitProgres(&cfg.Postgres)
+	checkError(err)
 
-	// redis := cache.InitCache(&cfg.Redis)
+	redis := cache.InitCache(&cfg.Redis)
 
-	// token := token.NewTokenUseCase(cfg.JWT.SecretKey)
+	jwtToken := jwt_token.NewJwtToken(cfg.JWT.SecretKey)
+
+	publicRoutes := builder.BuildAppPublicRoutes(postgres, jwtToken)
+	privateRoutes := builder.BuildAppPrivateRoutes(postgres, redis)
+
+	srv := server.NewServer(publicRoutes, privateRoutes, cfg.JWT.SecretKey)
+	srv.Run()
 }
 
 func checkError(err error) {

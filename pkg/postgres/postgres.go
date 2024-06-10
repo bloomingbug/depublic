@@ -3,13 +3,13 @@ package postgres
 import (
 	"fmt"
 
-	"github.com/bloomingbug/depublic/config"
+	"github.com/bloomingbug/depublic/configs"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
-func InitProgres(config config.PostgresConfig) (*gorm.DB, error) {
+func InitProgres(config *configs.PostgresConfig) (*gorm.DB, error) {
 	dsn := fmt.Sprintf(
 		`host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta`,
 		config.Host,
