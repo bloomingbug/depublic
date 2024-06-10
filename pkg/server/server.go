@@ -8,7 +8,7 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/bloomingbug/depublic/internal/http/middleware"
+	"github.com/bloomingbug/depublic/internal/http/middlewares"
 	"github.com/bloomingbug/depublic/pkg/response"
 	"github.com/bloomingbug/depublic/pkg/route"
 	"github.com/labstack/echo/v4"
@@ -21,7 +21,7 @@ type Server struct {
 func NewServer(publicRoutes, privateRoutes []*route.Route, secretKey string) *Server {
 	e := echo.New()
 
-	mw := middleware.NewMiddleware(secretKey)
+	mw := middlewares.NewMiddleware(secretKey)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, response.Success(http.StatusOK, "API Depublic", nil))
@@ -37,7 +37,7 @@ func NewServer(publicRoutes, privateRoutes []*route.Route, secretKey string) *Se
 
 	if len(privateRoutes) > 0 {
 		for _, r := range privateRoutes {
-			endpoint.Add(r.Method, r.Path, r.Handler, mw.For(r.Middleware))
+			endpoint.Add(r.Method, r.Path, r.Handler, mw.For(r.Roles...))
 		}
 	}
 

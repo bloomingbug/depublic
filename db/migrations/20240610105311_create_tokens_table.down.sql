@@ -1,0 +1,5 @@
+BEGIN;
+
+DROP IF NOT EXISTS tokens;
+
+COMMIT;

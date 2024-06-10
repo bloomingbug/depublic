@@ -1,4 +1,4 @@
-package middleware
+package middlewares
 
 import (
 	"net/http"
@@ -14,18 +14,18 @@ type Middleware struct {
 }
 
 type MiddlewareInterface interface {
-	For(role string) echo.MiddlewareFunc
+	For(role ...string) echo.MiddlewareFunc
 }
 
 func NewMiddleware(secretKey string) MiddlewareInterface {
 	return &Middleware{SecretKey: secretKey}
 }
 
-func (m *Middleware) For(role string) echo.MiddlewareFunc {
+func (m *Middleware) For(roles ...string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			// Guest role doesn't require JWT
-			if role == "guest" {
+			if contains(roles, "Guest") {
 				user := c.Get("user")
 				if user != nil {
 					return c.JSON(http.StatusForbidden, map[string]string{"message": "anda sudah login"})
@@ -54,19 +54,8 @@ func (m *Middleware) For(role string) echo.MiddlewareFunc {
 				token := user.(*jwt.Token)
 				claims := token.Claims.(*jwt_token.JwtCustomClaims)
 
-				switch role {
-				case "admin":
-					if claims.Role != "admin" {
-						return c.JSON(http.StatusForbidden, map[string]string{"message": "anda tidak memiliki akses"})
-					}
-				case "buyer":
-					if claims.Role != "buyer" {
-						return c.JSON(http.StatusForbidden, map[string]string{"message": "anda tidak memiliki akses"})
-					}
-				case "login":
-					// User is already authenticated
-				default:
-					return c.JSON(http.StatusForbidden, map[string]string{"message": "invalid role"})
+				if !contains(roles, claims.Role) {
+					return c.JSON(http.StatusForbidden, map[string]string{"error": "anda tidak diperbolehkan untuk mengakses resource ini"})
 				}
 
 				return next(c)
@@ -77,4 +66,13 @@ func (m *Middleware) For(role string) echo.MiddlewareFunc {
 			return nil
 		}
 	}
+}
+
+func contains(slice []string, s string) bool {
+	for _, value := range slice {
+		if value == s {
+			return true
+		}
+	}
+	return false
 }

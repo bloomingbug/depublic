@@ -1,0 +1,14 @@
+BEGIN;
+
+CREATE TABLE IF NOT EXISTS one_time_passwords (
+    id VARCHAR(16) PRIMARY KEY,
+    otp_code VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP,
+    is_valid BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMP
+);
+
+COMMIT;

@@ -7,6 +7,19 @@ import (
 	"github.com/bloomingbug/depublic/pkg/route"
 )
 
+const (
+	Administrator = "Administrator"
+	Buyer         = "Buyer"
+	Guest         = "Guest"
+)
+
+var (
+	allRoles  = []string{Administrator, Buyer}
+	onlyAdmin = []string{Administrator}
+	onlyBuyer = []string{Buyer}
+	onlyGuest = []string{Guest}
+)
+
 func AppPublicRoutes(h handler.HelloHandler) []*route.Route {
 	return []*route.Route{
 		{
@@ -20,10 +33,10 @@ func AppPublicRoutes(h handler.HelloHandler) []*route.Route {
 func AppPrivateRoutes(h handler.HelloHandler) []*route.Route {
 	return []*route.Route{
 		{
-			Method:     http.MethodGet,
-			Path:       "/private",
-			Handler:    h.Say,
-			Middleware: "login",
+			Method:  http.MethodGet,
+			Path:    "/private",
+			Handler: h.Say,
+			Roles:   allRoles,
 		},
 	}
 }
