@@ -8,11 +8,13 @@ import (
 )
 
 type Config struct {
-	Env      string         `env:"ENV" envDefault:"dev"`
-	Port     string         `env:"PORT" envDefault:"8080"`
-	Postgres PostgresConfig `envPrefix:"POSTGRES_"`
-	JWT      JwtConfig      `envPrefix:"JWT_"`
-	Redis    RedisConfig    `envPrefix:"REDIS_"`
+	Env       string         `env:"ENV" envDefault:"dev"`
+	Port      string         `env:"PORT" envDefault:"8080"`
+	Postgres  PostgresConfig `envPrefix:"POSTGRES_"`
+	JWT       JwtConfig      `envPrefix:"JWT_"`
+	Redis     RedisConfig    `envPrefix:"REDIS_"`
+	Namespace NamespaceConfig
+	SMTP      SMTPConfig `envPrefix:"SMTP_"`
 }
 
 type PostgresConfig struct {
@@ -33,6 +35,17 @@ type RedisConfig struct {
 	Password string `env:"PASSWORD_REDIS" envDefault:""`
 }
 
+type NamespaceConfig struct {
+	Namespace string `env:"NAMESPACE" envDefault:"application_namespace"`
+}
+
+type SMTPConfig struct {
+	Server   string `env:"SERVER" envDefault:""`
+	Port     string `env:"PORT" envDefault:""`
+	Username string `env:"USERNAME" envDefault:""`
+	Password string `env:"PASSWORD" envDefault:""`
+}
+
 func NewConfig(path string) (*Config, error) {
 	err := godotenv.Load(path)
 	if err != nil {
@@ -40,7 +53,7 @@ func NewConfig(path string) (*Config, error) {
 	}
 
 	cfg := new(Config)
-	
+
 	err = env.Parse(cfg)
 	if err != nil {
 		return nil, errors.New("failed to parse config file")
