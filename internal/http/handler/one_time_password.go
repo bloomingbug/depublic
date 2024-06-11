@@ -25,7 +25,9 @@ func (h *OneTimePasswordHandler) Generate(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, err.Error()))
 	}
 
-	return c.JSON(http.StatusOK, response.Success(http.StatusOK, true, "berhasil mengirim otp ke email", otp))
+	return c.JSON(http.StatusOK, response.Success(http.StatusOK, true, "berhasil mengirim otp ke email", map[string]string{
+		"email": otp.Email,
+	}))
 }
 
 func NewOneTimePasswordHandler(otpService services.OneTimePasswordService) OneTimePasswordHandler {

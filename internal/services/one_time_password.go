@@ -9,10 +9,12 @@ import (
 
 	"github.com/bloomingbug/depublic/internal/entity"
 	"github.com/bloomingbug/depublic/internal/repository"
+	"github.com/bloomingbug/depublic/pkg/scheduler"
 )
 
 type oneTimePasswordService struct {
 	otpRepository repository.OneTimePasswordRepository
+	scheduler     scheduler.Scheduler
 }
 
 func (s *oneTimePasswordService) codeGenerator() (code string) {
@@ -39,6 +41,8 @@ func (s *oneTimePasswordService) Generate(ctx context.Context, email string) (*e
 	if err != nil {
 		return nil, err
 	}
+
+	s.scheduler.SendOTP(email, otp.OTPCode)
 	return otp, nil
 }
 
@@ -55,6 +59,9 @@ type OneTimePasswordService interface {
 	FindOneByCodeAndEmail(ctx context.Context, email, code string) (*entity.OneTimePassword, error)
 }
 
-func NewOneTimePasswordService(otpRepository repository.OneTimePasswordRepository) OneTimePasswordService {
-	return &oneTimePasswordService{otpRepository: otpRepository}
+func NewOneTimePasswordService(otpRepository repository.OneTimePasswordRepository, scheduler scheduler.Scheduler) OneTimePasswordService {
+	return &oneTimePasswordService{
+		otpRepository: otpRepository,
+		scheduler:     scheduler,
+	}
 }

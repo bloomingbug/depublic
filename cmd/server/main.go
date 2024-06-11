@@ -6,6 +6,7 @@ import (
 	"github.com/bloomingbug/depublic/pkg/cache"
 	"github.com/bloomingbug/depublic/pkg/jwt_token"
 	"github.com/bloomingbug/depublic/pkg/postgres"
+	"github.com/bloomingbug/depublic/pkg/scheduler"
 	"github.com/bloomingbug/depublic/pkg/server"
 )
 
@@ -19,9 +20,10 @@ func main() {
 	redis := cache.InitCache(&cfg.Redis)
 
 	jwtToken := jwt_token.NewJwtToken(cfg.JWT.SecretKey)
+	scheduler := scheduler.NewScheduler(redis, cfg.Namespace)
 
 	publicRoutes := builder.BuildAppPublicRoutes(postgres, jwtToken)
-	privateRoutes := builder.BuildAppPrivateRoutes(postgres, redis)
+	privateRoutes := builder.BuildAppPrivateRoutes(postgres, redis, scheduler)
 
 	srv := server.NewServer(publicRoutes, privateRoutes, cfg.JWT.SecretKey)
 	srv.Run()

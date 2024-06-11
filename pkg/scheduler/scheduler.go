@@ -1,10 +1,9 @@
-package pkg
+package scheduler
 
 import (
 	"log"
 
 	"github.com/bloomingbug/depublic/configs"
-	"github.com/bloomingbug/depublic/internal/entity"
 	"github.com/gocraft/work"
 	"github.com/gomodule/redigo/redis"
 )
@@ -14,19 +13,17 @@ type scheduler struct {
 	cfg configs.NamespaceConfig
 }
 
-func (s *scheduler) RunScheduler(tasks []entity.Task) {
+func (s *scheduler) SendOTP(email, otp string) {
 	var enqueuer = work.NewEnqueuer(s.cfg.Namespace, s.rdb)
 
-	for _, t := range tasks {
-		_, err := enqueuer.Enqueue(t.TaskName, work.Q{"email_address": t.Email, "user_id": t.UserID})
-		if err != nil {
-			log.Fatal(err)
-		}
+	_, err := enqueuer.Enqueue("send_otp", work.Q{"email_address": email, "otp_code": otp})
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 
 type Scheduler interface {
-	RunScheduler(tasks []entity.Task)
+	SendOTP(email, otp string)
 }
 
 func NewScheduler(rdb *redis.Pool, cfg configs.NamespaceConfig) Scheduler {

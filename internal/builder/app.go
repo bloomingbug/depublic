@@ -7,6 +7,7 @@ import (
 	"github.com/bloomingbug/depublic/internal/services"
 	"github.com/bloomingbug/depublic/pkg/jwt_token"
 	"github.com/bloomingbug/depublic/pkg/route"
+	"github.com/bloomingbug/depublic/pkg/scheduler"
 	"github.com/gomodule/redigo/redis"
 	"gorm.io/gorm"
 )
@@ -18,11 +19,11 @@ func BuildAppPublicRoutes(db *gorm.DB, jwtToken jwt_token.JwtToken) []*route.Rou
 	return router.AppPublicRoutes(handlers)
 }
 
-func BuildAppPrivateRoutes(db *gorm.DB, redisDB *redis.Pool) []*route.Route {
+func BuildAppPrivateRoutes(db *gorm.DB, redisDB *redis.Pool, scheduler scheduler.Scheduler) []*route.Route {
 	handlers := make(map[string]interface{})
 
 	otpRepository := repository.NewOneTimePasswordRepository(db)
-	otpService := services.NewOneTimePasswordService(otpRepository)
+	otpService := services.NewOneTimePasswordService(otpRepository, scheduler)
 	otpHandler := handler.NewOneTimePasswordHandler(otpService)
 	handlers["otp"] = &otpHandler
 

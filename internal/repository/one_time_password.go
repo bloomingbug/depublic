@@ -22,7 +22,7 @@ func (r *oneTimePasswordRepository) Generate(ctx context.Context, otp *entity.On
 
 func (r *oneTimePasswordRepository) FindOneByCodeAndEmail(ctx context.Context, email, code string) (*entity.OneTimePassword, error) {
 	otp := new(entity.OneTimePassword)
-	if err := r.db.WithContext(ctx).Where("email = ? AND otp_code = ? AND is_valid = true", email, code, true).Take(&otp).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("email = ? AND otp_code = ? AND is_valid = true AND expires_at > NOW()", email, code, true).Take(&otp).Error; err != nil {
 		return otp, err
 	}
 

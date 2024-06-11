@@ -40,10 +40,11 @@ type NamespaceConfig struct {
 }
 
 type SMTPConfig struct {
-	Server   string `env:"SERVER" envDefault:""`
-	Port     string `env:"PORT" envDefault:""`
+	Host     string `env:"HOST" envDefault:""`
+	Port     int    `env:"PORT" envDefault:""`
 	Username string `env:"USERNAME" envDefault:""`
 	Password string `env:"PASSWORD" envDefault:""`
+	Sender   string `env:"SENDER" envDefault:""`
 }
 
 func NewConfig(path string) (*Config, error) {
