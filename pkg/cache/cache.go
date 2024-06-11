@@ -1,20 +1,22 @@
 package cache
 
 import (
-	"context"
 	"fmt"
 	"time"
 
 	"github.com/bloomingbug/depublic/configs"
-	"github.com/redis/go-redis/v9"
+	"github.com/gomodule/redigo/redis"
 )
 
-func InitCache(config *configs.RedisConfig) *redis.Client {
-	rdb := redis.NewClient(&redis.Options {
-		Addr: fmt.Sprintf("%s:%s", config.Host, config.Port),
-		Password: config.Password,
-		DB: 0,
-	})
+func InitCache(config *configs.RedisConfig) *redis.Pool {
+	rdb := &redis.Pool{
+		MaxActive: 5,
+		MaxIdle:   5,
+		Wait:      true,
+		Dial: func() (redis.Conn, error) {
+			return redis.Dial("tcp", fmt.Sprintf("%s:%s", config.Host, config.Port))
+		},
+	}
 
 	return rdb
 }
@@ -25,26 +27,34 @@ type Cacheable interface {
 }
 
 type cacheable struct {
-	rdb *redis.Client
+	rdb *redis.Pool
 }
 
-func NewCacheable(rdb *redis.Client) *cacheable {
+func NewCacheable(rdb *redis.Pool) Cacheable {
 	return &cacheable{
 		rdb: rdb,
 	}
 }
 
 func (c *cacheable) Set(key string, value interface{}, expiration time.Duration) error {
-	operation := c.rdb.Set(context.Background(), key, value, expiration)
-	if err := operation.Err(); err != nil {
+	conn := c.rdb.Get()
+	defer conn.Close()
+
+	_, err := conn.Do("SET", key, value, "EX", int64(expiration.Seconds()))
+	if err != nil {
 		return err
 	}
 	return nil
 }
 
 func (c *cacheable) Get(key string) string {
-	val, err := c.rdb.Get(context.Background(), key).Result()
-	if err == redis.Nil {
+	conn := c.rdb.Get()
+	defer conn.Close()
+
+	val, err := redis.String(conn.Do("GET", key))
+	if err == redis.ErrNil {
+		return ""
+	} else if err != nil {
 		return ""
 	}
 	return val

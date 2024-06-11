@@ -10,7 +10,7 @@ import (
 type HelloHandler struct{}
 
 func (h *HelloHandler) Say(c echo.Context) error {
-	return c.JSON(http.StatusOK, response.Success(http.StatusOK, "Hello", nil))
+	return c.JSON(http.StatusOK, response.Success(http.StatusOK, true, "Hello", nil))
 }
 
 func NewHelloHandler() HelloHandler {

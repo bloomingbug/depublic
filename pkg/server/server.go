@@ -24,7 +24,7 @@ func NewServer(publicRoutes, privateRoutes []*route.Route, secretKey string) *Se
 	mw := middlewares.NewMiddleware(secretKey)
 
 	e.GET("/", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, response.Success(http.StatusOK, "API Depublic", nil))
+		return c.JSON(http.StatusOK, response.Success(http.StatusOK, true, "API Depublic", nil))
 	})
 
 	endpoint := e.Group("/api")

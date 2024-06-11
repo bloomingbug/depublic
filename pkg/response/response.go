@@ -1,31 +1,26 @@
 package response
 
 type Response struct {
-	Meta Meta
-	Data interface{} `json:"data"`
+	Code    int         `json:"code"`
+	Success bool        `json:"success"`
+	Message interface{} `json:"message"`
+	Data    interface{} `json:"data"`
 }
 
-type Meta struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-}
-
-func Success(code int, message string, data interface{}) Response {
+func Success(code int, isSuccess bool, message string, data interface{}) Response {
 	return Response{
-		Meta: Meta{
-			Code:    code,
-			Message: message,
-		},
-		Data: data,
+		Code:    code,
+		Success: isSuccess,
+		Message: message,
+		Data:    data,
 	}
 }
 
-func Error(code int, message string) Response {
+func Error(code int, isSuccess bool, message interface{}) Response {
 	return Response{
-		Meta: Meta{
-			Code:    code,
-			Message: message,
-		},
-		Data: nil,
+		Code:    code,
+		Success: isSuccess,
+		Message: message,
+		Data:    nil,
 	}
 }

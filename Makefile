@@ -1,12 +1,12 @@
 .PHONY: migrate-fresh-supabase
 migrate-fresh-supabase:
-	migrate -path db/migrations -database "postgresql://postgres.settumozapjmoshlvqgf:9dGn99bPyoTVRBP5@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=disable" down 1
-	migrate -path db/migrations -database "postgresql://postgres.settumozapjmoshlvqgf:9dGn99bPyoTVRBP5@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=disable" up 1
+	migrate -path db/migrations -database "postgresql://postgres.settumozapjmoshlvqgf:9dGn99bPyoTVRBP5@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=disable" down
+	migrate -path db/migrations -database "postgresql://postgres.settumozapjmoshlvqgf:9dGn99bPyoTVRBP5@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=disable" up
 
 .PHONY: migrate-fresh
 migrate-fresh:
-	migrate -path db/migrations -database "postgresql://postgres:postgres@localhost:5432/db_depublic?sslmode=disable" down 1
-	migrate -path db/migrations -database "postgresql://postgres:postgres@localhost:5432/db_depublic?sslmode=disable" up 1
+	migrate -path db/migrations -database "postgresql://postgres:postgres@localhost:5432/db_depublic?sslmode=disable" down
+	migrate -path db/migrations -database "postgresql://postgres:postgres@localhost:5432/db_depublic?sslmode=disable" up
 
 .PHONY: migrate
 migrate:

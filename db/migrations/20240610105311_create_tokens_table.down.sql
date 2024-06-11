@@ -1,5 +1,5 @@
 BEGIN;
 
-DROP IF NOT EXISTS tokens;
+DROP TABLE IF EXISTS public.tokens;
 
 COMMIT;
