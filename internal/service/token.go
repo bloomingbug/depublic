@@ -57,7 +57,9 @@ type TokenService interface {
 	GenerateTokenRegistration(c context.Context, otp, email string) (*entity.Token, error)
 }
 
-func NewTokenService(otpRepository repository.OneTimePasswordRepository, tokenRepository repository.TokenRepository) TokenService {
+func NewTokenService(
+	otpRepository repository.OneTimePasswordRepository,
+	tokenRepository repository.TokenRepository) TokenService {
 	return &tokenService{
 		otpRepository:   otpRepository,
 		tokenRepository: tokenRepository,

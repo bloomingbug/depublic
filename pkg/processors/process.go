@@ -18,6 +18,7 @@ type process struct {
 }
 
 func (p *process) RunProcess() {
+	fmt.Println("Background process is running...")
 	pool := work.NewWorkerPool(Context{}, 10, p.cfg.Namespace.Namespace, p.rdb)
 	pool.Middleware((*Context).Log)
 

@@ -15,7 +15,7 @@ type TokenHandler struct {
 }
 
 func (h *TokenHandler) Generate(c echo.Context) error {
-	var input binder.VerifyOTPRequest
+	input := new(binder.VerifyOTPRequest)
 	if err := c.Bind(&input); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, validator.ValidatorErrors(err)))
 	}

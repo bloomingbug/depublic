@@ -26,6 +26,12 @@ func BuildAppPublicRoutes(db *gorm.DB, jwtToken jwt_token.JwtToken, scheduler sc
 	tokenService := service.NewTokenService(otpRepository, tokenRepository)
 	tokenHandler := handler.NewTokenHandler(tokenService)
 	handlers["token"] = &tokenHandler
+
+	userRepository := repository.NewUserRepository(db)
+	userService := service.NewUserService(tokenRepository, userRepository, jwtToken)
+	userHandler := handler.NewUserHandler(userService)
+	handlers["user"] = &userHandler
+
 	return router.AppPublicRoutes(handlers)
 }
 

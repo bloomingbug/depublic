@@ -35,6 +35,16 @@ func AppPublicRoutes(h map[string]interface{}) []*route.Route {
 			Path:    "/verify-otp",
 			Handler: h["token"].(*handler.TokenHandler).Generate,
 		},
+		{
+			Method:  http.MethodPost,
+			Path:    "/auth/register",
+			Handler: h["user"].(*handler.UserHandler).Registration,
+		},
+		{
+			Method:  http.MethodPost,
+			Path:    "/auth/login",
+			Handler: h["user"].(*handler.UserHandler).Login,
+		},
 	}
 }
 
