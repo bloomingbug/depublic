@@ -1,4 +1,4 @@
-package services
+package service
 
 import (
 	"context"
@@ -35,9 +35,9 @@ func (s *oneTimePasswordService) codeGenerator() (code string) {
 	return
 }
 
-func (s *oneTimePasswordService) Generate(ctx context.Context, email string) (*entity.OneTimePassword, error) {
+func (s *oneTimePasswordService) Generate(c context.Context, email string) (*entity.OneTimePassword, error) {
 	otp := entity.NewOneTimePassword(s.codeGenerator(), email)
-	otp, err := s.otpRepository.Generate(ctx, otp)
+	otp, err := s.otpRepository.Create(c, otp)
 	if err != nil {
 		return nil, err
 	}
@@ -46,8 +46,8 @@ func (s *oneTimePasswordService) Generate(ctx context.Context, email string) (*e
 	return otp, nil
 }
 
-func (s *oneTimePasswordService) FindOneByCodeAndEmail(ctx context.Context, email, code string) (*entity.OneTimePassword, error) {
-	otp, err := s.otpRepository.FindOneByCodeAndEmail(ctx, email, code)
+func (s *oneTimePasswordService) FindOneByCodeAndEmail(c context.Context, email, code string) (*entity.OneTimePassword, error) {
+	otp, err := s.otpRepository.FindOneByCodeAndEmail(c, email, code)
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +55,8 @@ func (s *oneTimePasswordService) FindOneByCodeAndEmail(ctx context.Context, emai
 }
 
 type OneTimePasswordService interface {
-	Generate(ctx context.Context, email string) (*entity.OneTimePassword, error)
-	FindOneByCodeAndEmail(ctx context.Context, email, code string) (*entity.OneTimePassword, error)
+	Generate(c context.Context, email string) (*entity.OneTimePassword, error)
+	FindOneByCodeAndEmail(c context.Context, email, code string) (*entity.OneTimePassword, error)
 }
 
 func NewOneTimePasswordService(otpRepository repository.OneTimePasswordRepository, scheduler scheduler.Scheduler) OneTimePasswordService {

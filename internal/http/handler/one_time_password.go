@@ -5,13 +5,13 @@ import (
 
 	"github.com/bloomingbug/depublic/internal/http/binder"
 	"github.com/bloomingbug/depublic/internal/http/validator"
-	"github.com/bloomingbug/depublic/internal/services"
+	"github.com/bloomingbug/depublic/internal/service"
 	"github.com/bloomingbug/depublic/pkg/response"
 	"github.com/labstack/echo/v4"
 )
 
 type OneTimePasswordHandler struct {
-	otpService services.OneTimePasswordService
+	otpService service.OneTimePasswordService
 }
 
 func (h *OneTimePasswordHandler) Generate(c echo.Context) error {
@@ -30,6 +30,6 @@ func (h *OneTimePasswordHandler) Generate(c echo.Context) error {
 	}))
 }
 
-func NewOneTimePasswordHandler(otpService services.OneTimePasswordService) OneTimePasswordHandler {
+func NewOneTimePasswordHandler(otpService service.OneTimePasswordService) OneTimePasswordHandler {
 	return OneTimePasswordHandler{otpService: otpService}
 }

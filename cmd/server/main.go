@@ -22,8 +22,8 @@ func main() {
 	jwtToken := jwt_token.NewJwtToken(cfg.JWT.SecretKey)
 	scheduler := scheduler.NewScheduler(redis, cfg.Namespace)
 
-	publicRoutes := builder.BuildAppPublicRoutes(postgres, jwtToken)
-	privateRoutes := builder.BuildAppPrivateRoutes(postgres, redis, scheduler)
+	publicRoutes := builder.BuildAppPublicRoutes(postgres, jwtToken, scheduler)
+	privateRoutes := builder.BuildAppPrivateRoutes(postgres, redis)
 
 	srv := server.NewServer(publicRoutes, privateRoutes, cfg.JWT.SecretKey)
 	srv.Run()
