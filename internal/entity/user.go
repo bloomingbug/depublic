@@ -13,12 +13,19 @@ const (
 	Female Gender = "F"
 )
 
+type Role string
+
+const (
+	Admin Role = "Administrator"
+	Buyer Role = "Buyer"
+)
+
 type User struct {
 	ID        uuid.UUID  `json:"id"`
 	Name      string     `json:"name"`
 	Email     string     `json:"email"`
 	Password  string     `json:"password"`
-	Role      string     `json:"role"`
+	Role      Role       `json:"role"`
 	Phone     string     `json:"phone,omitempty"`
 	Address   string     `json:"address,omitempty"`
 	Avatar    string     `json:"avatar,omitempty"`
@@ -27,7 +34,7 @@ type User struct {
 	Auditable
 }
 
-func NewUser(name, email, password, role, phone, address, avatar string, birthdate *time.Time, gender Gender) *User {
+func NewUser(name, email, password, phone, address, avatar string, birthdate *time.Time, gender Gender, role Role) *User {
 	return &User{
 		ID:        uuid.New(),
 		Name:      name,

@@ -109,7 +109,7 @@ func (s *userService) Login(c context.Context, email, password string) (string, 
 		ID:     user.ID.String(),
 		Name:   user.Name,
 		Email:  user.Email,
-		Role:   user.Role,
+		Role:   string(user.Role),
 		Avatar: user.Avatar,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "Depublic",

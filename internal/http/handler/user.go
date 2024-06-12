@@ -30,7 +30,7 @@ func (h *UserHandler) Registration(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Invalid birthdate format"})
 	}
 
-	userNew := entity.NewUser(input.Name, input.Email, input.Password, input.Role, input.Phone, input.Address, input.Avatar, &birthdate, entity.Gender(input.Gender))
+	userNew := entity.NewUser(input.Name, input.Email, input.Password, input.Phone, input.Address, input.Avatar, &birthdate, entity.Gender(input.Gender), entity.Role(entity.Buyer))
 
 	user, err := h.userService.UserRegistration(c, input.Token, input.Email, userNew)
 	if err != nil {
