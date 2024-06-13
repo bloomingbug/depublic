@@ -15,17 +15,25 @@ type TokenHandler struct {
 }
 
 func (h *TokenHandler) Generate(c echo.Context) error {
-	input := new(binder.VerifyOTPRequest)
-	if err := c.Bind(&input); err != nil {
-		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, form_validator.ValidatorErrors(err)))
+	req := new(binder.VerifyOTPRequest)
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Error(
+			http.StatusBadRequest,
+			false,
+			form_validator.ValidatorErrors(err)))
 	}
 
-	token, err := h.tokenService.GenerateTokenRegistration(c.Request().Context(), input.OTPCode, input.Email)
+	token, err := h.tokenService.GenerateTokenRegistration(c.Request().Context(), req.OTPCode, req.Email)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Error(http.StatusInternalServerError, false, err.Error()))
 	}
 
-	return c.JSON(http.StatusOK, response.Success(http.StatusOK, true, "Success", token))
+	return c.JSON(http.StatusOK, response.Success(http.StatusOK, true, "Success", echo.Map{
+		"token":      token.ID,
+		"email":      token.Email,
+		"action":     token.Action,
+		"expires_at": token.ExpiresAt,
+	}))
 }
 
 func NewTokenHandler(tokenService service.TokenService) TokenHandler {

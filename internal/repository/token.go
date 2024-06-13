@@ -19,11 +19,11 @@ func (r *tokenRepository) Create(c context.Context, token *entity.Token) (*entit
 	return token, nil
 }
 
-func (r *tokenRepository) FindOneByCodeAndEmail(c context.Context, email, token string) (*entity.Token, error) {
+func (r *tokenRepository) FindByIdAndEmail(c context.Context, id uuid.UUID, email string) (*entity.Token, error) {
 	var tokenData entity.Token
 	if err := r.db.WithContext(c).Where(
-		"email = ? AND token = ? AND expires_at > NOW()",
-		email, token).First(&tokenData).Error; err != nil {
+		"id = ? AND email = ? AND expires_at > NOW()",
+		id, email).First(&tokenData).Error; err != nil {
 		return nil, err
 	}
 
@@ -40,7 +40,7 @@ func (r *tokenRepository) Delete(c context.Context, id uuid.UUID) error {
 
 type TokenRepository interface {
 	Create(c context.Context, token *entity.Token) (*entity.Token, error)
-	FindOneByCodeAndEmail(c context.Context, email, token string) (*entity.Token, error)
+	FindByIdAndEmail(c context.Context, id uuid.UUID, email string) (*entity.Token, error)
 	Delete(c context.Context, id uuid.UUID) error
 }
 

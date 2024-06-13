@@ -32,7 +32,7 @@ func main() {
 	formValidator := form_validator.NewFormValidator()
 	customBinder := binder.NewBinder(echoBinder, formValidator)
 
-	srv := server.NewServer(cfg, customBinder,publicRoutes, privateRoutes)
+	srv := server.NewServer(cfg, customBinder, publicRoutes, privateRoutes)
 	srv.Run()
 }
 

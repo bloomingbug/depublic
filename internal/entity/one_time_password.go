@@ -23,10 +23,3 @@ func NewOneTimePassword(otpCode, email string) *OneTimePassword {
 		Auditable: NewAuditable(),
 	}
 }
-
-func UsedOneTimePassword(id uuid.UUID) *OneTimePassword {
-	return &OneTimePassword{
-		ID:        id,
-		Auditable: UpdateAuditable(),
-	}
-}

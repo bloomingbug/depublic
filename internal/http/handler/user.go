@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -18,21 +17,23 @@ type UserHandler struct {
 }
 
 func (h *UserHandler) Registration(c echo.Context) error {
-	var input binder.RegisterRequest
-	if err := c.Bind(&input); err != nil {
-		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, form_validator.ValidatorErrors(err)))
+	req := new(binder.RegisterRequest)
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Error(
+			http.StatusBadRequest,
+			false,
+			form_validator.ValidatorErrors(err),
+		))
 	}
 
-	fmt.Println(input.Name)
-
-	birthdate, err := time.Parse("2006-01-02", input.Birthdate)
+	birthdate, err := time.Parse("2006-01-02", req.Birthdate)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Invalid birthdate format"})
 	}
 
-	userNew := entity.NewUser(input.Name, input.Email, input.Password, input.Phone, input.Address, input.Avatar, &birthdate, entity.Gender(input.Gender), entity.Role(entity.Buyer))
+	userNew := entity.NewUser(req.Name, req.Email, req.Password, req.Phone, req.Address, req.Avatar, &birthdate, entity.Gender(req.Gender), entity.Role(entity.Buyer))
 
-	user, err := h.userService.UserRegistration(c, input.Token, input.Email, userNew)
+	user, err := h.userService.UserRegistration(c, req.Token, req.Email, userNew)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, err.Error()))
 	}
@@ -44,12 +45,15 @@ func (h *UserHandler) Registration(c echo.Context) error {
 }
 
 func (h *UserHandler) Login(c echo.Context) error {
-	var input binder.LoginRequest
-	if err := c.Bind(&input); err != nil {
-		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, form_validator.ValidatorErrors(err)))
+	req := new(binder.LoginRequest)
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Error(
+			http.StatusBadRequest,
+			false,
+			form_validator.ValidatorErrors(err)))
 	}
 
-	token, err := h.userService.Login(c.Request().Context(), input.Email, input.Password)
+	token, err := h.userService.Login(c.Request().Context(), req.Email, req.Password)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, err.Error()))
 	}

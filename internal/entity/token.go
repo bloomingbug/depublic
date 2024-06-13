@@ -6,32 +6,26 @@ import (
 	"github.com/google/uuid"
 )
 
+type TokenAction string
+
+const (
+	Register       TokenAction = "register"
+	ForgotPassword TokenAction = "forgot-password"
+)
+
 type Token struct {
-	ID        uuid.UUID `json:"id"`
-	Token     string    `json:"token"`
-	Email     string    `json:"email"`
-	Action    string    `json:"action"`
-	ExpiresAt time.Time `json:"expires_at" sql:"expires_at"`
+	ID        uuid.UUID   `json:"id"`
+	Email     string      `json:"email"`
+	Action    TokenAction `json:"action"`
+	ExpiresAt time.Time   `json:"expires_at" sql:"expires_at"`
 	Auditable
 }
 
-func NewTokenRegister(token, email string) *Token {
+func NewToken(email string, action TokenAction) *Token {
 	return &Token{
 		ID:        uuid.New(),
-		Token:     token,
 		Email:     email,
-		Action:    "register",
-		ExpiresAt: time.Now().Add(time.Minute * 15),
-		Auditable: NewAuditable(),
-	}
-}
-
-func NewTokenForgotPassword(token, email string) *Token {
-	return &Token{
-		ID:        uuid.New(),
-		Token:     token,
-		Email:     email,
-		Action:    "forgot-password",
+		Action:    action,
 		ExpiresAt: time.Now().Add(time.Minute * 15),
 		Auditable: NewAuditable(),
 	}

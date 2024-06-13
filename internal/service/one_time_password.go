@@ -35,7 +35,7 @@ func (s *oneTimePasswordService) codeGenerator() (code string) {
 	return
 }
 
-func (s *oneTimePasswordService) Generate(c context.Context, email string) (*entity.OneTimePassword, error) {
+func (s *oneTimePasswordService) GenerateForRegister(c context.Context, email string) (*entity.OneTimePassword, error) {
 	otp := entity.NewOneTimePassword(s.codeGenerator(), email)
 	otp, err := s.otpRepository.Create(c, otp)
 	if err != nil {
@@ -55,7 +55,7 @@ func (s *oneTimePasswordService) FindOneByCodeAndEmail(c context.Context, email,
 }
 
 type OneTimePasswordService interface {
-	Generate(c context.Context, email string) (*entity.OneTimePassword, error)
+	GenerateForRegister(c context.Context, email string) (*entity.OneTimePassword, error)
 	FindOneByCodeAndEmail(c context.Context, email, code string) (*entity.OneTimePassword, error)
 }
 

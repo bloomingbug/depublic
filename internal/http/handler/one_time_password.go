@@ -15,17 +15,20 @@ type OneTimePasswordHandler struct {
 }
 
 func (h *OneTimePasswordHandler) Generate(c echo.Context) error {
-	input := new(binder.GenerateOTPRequest)
-	if err := c.Bind(input); err != nil {
-		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, form_validator.ValidatorErrors(err)))
+	req := new(binder.GenerateOTPRequest)
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Error(
+			http.StatusBadRequest,
+			false,
+			form_validator.ValidatorErrors(err)))
 	}
 
-	otp, err := h.otpService.Generate(c.Request().Context(), input.Email)
+	otp, err := h.otpService.GenerateForRegister(c.Request().Context(), req.Email)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, err.Error()))
 	}
 
-	return c.JSON(http.StatusOK, response.Success(http.StatusOK, true, "berhasil mengirim otp ke email", map[string]string{
+	return c.JSON(http.StatusOK, response.Success(http.StatusOK, true, "berhasil mengirim otp ke email", echo.Map{
 		"email": otp.Email,
 	}))
 }

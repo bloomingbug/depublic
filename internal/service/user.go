@@ -14,6 +14,7 @@ import (
 	"github.com/bloomingbug/depublic/internal/repository"
 	"github.com/bloomingbug/depublic/pkg/jwt_token"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -29,8 +30,8 @@ func (s *userService) UserRegistration(
 	token string,
 	email string,
 	user *entity.User) (*entity.User, error) {
-	tokenData, err := s.tokenRepository.FindOneByCodeAndEmail(c.Request().Context(), user.Email, token)
-	if err != nil {
+	tokenData, err := s.tokenRepository.FindByIdAndEmail(c.Request().Context(), uuid.MustParse(token), user.Email)
+	if err != nil || tokenData == nil {
 		return nil, errors.New("invalid token")
 	}
 

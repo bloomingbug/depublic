@@ -2,7 +2,6 @@ BEGIN;
 
 CREATE TABLE IF NOT EXISTS public.tokens (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    token VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     action VARCHAR(255) NOT NULL,
     expires_at TIMESTAMP,
