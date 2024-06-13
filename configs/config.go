@@ -9,6 +9,7 @@ import (
 
 type Config struct {
 	Env       string         `env:"ENV" envDefault:"dev"`
+	URL       string         `env:"URL" envDefault:"http://localhost"`
 	Port      string         `env:"PORT" envDefault:"8080"`
 	Postgres  PostgresConfig `envPrefix:"POSTGRES_"`
 	JWT       JwtConfig      `envPrefix:"JWT_"`

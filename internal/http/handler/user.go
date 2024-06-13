@@ -7,7 +7,7 @@ import (
 
 	"github.com/bloomingbug/depublic/internal/entity"
 	"github.com/bloomingbug/depublic/internal/http/binder"
-	"github.com/bloomingbug/depublic/internal/http/validator"
+	"github.com/bloomingbug/depublic/internal/http/form_validator"
 	"github.com/bloomingbug/depublic/internal/service"
 	"github.com/bloomingbug/depublic/pkg/response"
 	"github.com/labstack/echo/v4"
@@ -20,7 +20,7 @@ type UserHandler struct {
 func (h *UserHandler) Registration(c echo.Context) error {
 	var input binder.RegisterRequest
 	if err := c.Bind(&input); err != nil {
-		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, validator.ValidatorErrors(err)))
+		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, form_validator.ValidatorErrors(err)))
 	}
 
 	fmt.Println(input.Name)
@@ -46,7 +46,7 @@ func (h *UserHandler) Registration(c echo.Context) error {
 func (h *UserHandler) Login(c echo.Context) error {
 	var input binder.LoginRequest
 	if err := c.Bind(&input); err != nil {
-		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, validator.ValidatorErrors(err)))
+		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, form_validator.ValidatorErrors(err)))
 	}
 
 	token, err := h.userService.Login(c.Request().Context(), input.Email, input.Password)

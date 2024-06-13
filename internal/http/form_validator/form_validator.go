@@ -1,4 +1,4 @@
-package validator
+package form_validator
 
 import (
 	"fmt"

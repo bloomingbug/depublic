@@ -4,6 +4,7 @@ go 1.22.2
 
 require (
 	github.com/caarlos0/env/v10 v10.0.0
+	github.com/creasty/defaults v1.7.0
 	github.com/go-faker/faker/v4 v4.4.2
 	github.com/go-playground/validator/v10 v10.21.0
 	github.com/gocraft/work v0.5.1
