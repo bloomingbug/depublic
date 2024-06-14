@@ -28,14 +28,13 @@ type userService struct {
 func (s *userService) UserRegistration(
 	c echo.Context,
 	token string,
-	email string,
 	user *entity.User) (*entity.User, error) {
 	tokenData, err := s.tokenRepository.FindByIdAndEmail(c.Request().Context(), uuid.MustParse(token), user.Email)
 	if err != nil || tokenData == nil {
 		return nil, errors.New("invalid token")
 	}
 
-	if tokenData.Action != "register" {
+	if tokenData.Action != entity.Register {
 		return nil, errors.New("invalid token")
 	}
 
@@ -136,10 +135,45 @@ func (s *userService) FindUserByEmail(c context.Context, email string) (*entity.
 	return user, nil
 }
 
+func (s *userService) ChangePassword(c context.Context, token, password string) error {
+	tokenData, err := s.tokenRepository.FindById(c, uuid.MustParse(token))
+	if err != nil {
+		return errors.New("invalid token")
+	}
+
+	if tokenData.Action != entity.ForgotPassword {
+		return errors.New("invalid token")
+	}
+
+	user, err := s.userRepository.FindByEmail(c, tokenData.Email)
+	if err != nil {
+		return err
+	}
+
+	err = s.tokenRepository.Delete(c, tokenData.ID)
+	if err != nil {
+		return err
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	user = entity.ChangePassword(user.ID, string(hashedPassword))
+	user, err = s.userRepository.Edit(c, user)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 type UserService interface {
-	UserRegistration(c echo.Context, token string, email string, user *entity.User) (*entity.User, error)
+	UserRegistration(c echo.Context, token string, user *entity.User) (*entity.User, error)
 	Login(c context.Context, email, password string) (string, error)
 	FindUserByEmail(c context.Context, email string) (*entity.User, error)
+	ChangePassword(c context.Context, token, password string) error
 }
 
 func NewUserService(

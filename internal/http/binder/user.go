@@ -14,6 +14,12 @@ type RegisterRequest struct {
 }
 
 type LoginRequest struct {
-	Email    string `form:"email" json:"email" validate:"required,email"`
-	Password string `form:"password" json:"password" validate:"required"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
+}
+
+type ResetPasswordRequest struct {
+	Token                string `json:"token" validate:"required,uuid"`
+	Password             string `json:"password" validate:"required,min=8"`
+	PasswordConfirmation string `json:"password_confirmation" validate:"required,min=8,eqfield=Password"`
 }

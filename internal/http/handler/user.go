@@ -33,7 +33,7 @@ func (h *UserHandler) Registration(c echo.Context) error {
 
 	userNew := entity.NewUser(req.Name, req.Email, req.Password, req.Phone, req.Address, req.Avatar, &birthdate, entity.Gender(req.Gender), entity.Role(entity.Buyer))
 
-	user, err := h.userService.UserRegistration(c, req.Token, req.Email, userNew)
+	user, err := h.userService.UserRegistration(c, req.Token, userNew)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, err.Error()))
 	}
@@ -46,7 +46,7 @@ func (h *UserHandler) Registration(c echo.Context) error {
 
 func (h *UserHandler) Login(c echo.Context) error {
 	req := new(binder.LoginRequest)
-	if err := c.Bind(&req); err != nil {
+	if err := c.Bind(req); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Error(
 			http.StatusBadRequest,
 			false,
@@ -59,6 +59,32 @@ func (h *UserHandler) Login(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, response.Success(http.StatusOK, true, "login success", echo.Map{"token": token}))
+}
+
+func (h *UserHandler) ResetPassword(c echo.Context) error {
+	req := new(binder.ResetPasswordRequest)
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Error(
+			http.StatusBadRequest,
+			false,
+			form_validator.ValidatorErrors(err),
+		))
+	}
+	err := h.userService.ChangePassword(c.Request().Context(), req.Token, req.Password)
+	if err != nil {
+		if err := c.Bind(&req); err != nil {
+			return c.JSON(http.StatusBadRequest, response.Error(
+				http.StatusInternalServerError,
+				false,
+				err.Error()))
+		}
+	}
+
+	return c.JSON(http.StatusOK, response.Success(
+		http.StatusOK,
+		false,
+		"success",
+		nil))
 }
 
 func NewUserHandler(userService service.UserService) UserHandler {
