@@ -1,4 +1,4 @@
-package validator
+package form_validator
 
 import (
 	"fmt"
@@ -21,6 +21,7 @@ func NewFormValidator() *FormValidator {
 
 	validate.RegisterTagNameFunc(func(fld reflect.StructField) string {
 		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
+		fmt.Println(name)
 		if name == "-" {
 			return ""
 		}
@@ -44,6 +45,18 @@ func ValidatorErrors(err error) map[string]string {
 				fields[err.Field()] = fmt.Sprintf("field %s harus berupa email", err.Field())
 			case "length":
 				fields[err.Field()] = fmt.Sprintf("field %s harus berisi %s karakter", err.Field(), err.Param())
+			case "eqfield":
+				fields[err.Field()] = fmt.Sprintf("field %s harus sama dengan field %s", err.Field(), err.Param())
+			case "gte":
+				fields[err.Field()] = fmt.Sprintf("field %s harus lebih dari atau sama dengan %s", err.Field(), err.Param())
+			case "lte":
+				fields[err.Field()] = fmt.Sprintf("field %s harus kurang dari atau sama dengan %s", err.Field(), err.Param())
+			case "gt":
+				fields[err.Field()] = fmt.Sprintf("field %s harus lebih dari %s", err.Field(), err.Param())
+			case "lt":
+				fields[err.Field()] = fmt.Sprintf("field %s harus kurang dari %s", err.Field(), err.Param())
+			case "uuid":
+				fields[err.Field()] = fmt.Sprintf("field %s harus berupa UUID", err.Field())
 			default:
 				fields[err.Field()] = fmt.Sprintf("%s error with tag %s should be %s", err.Field(), err.Tag(), err.Param())
 			}

@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS public.one_time_passwords (
     otp_code VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     expires_at TIMESTAMP,
-    is_valid BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     deleted_at TIMESTAMP

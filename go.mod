@@ -4,6 +4,8 @@ go 1.22.2
 
 require (
 	github.com/caarlos0/env/v10 v10.0.0
+	github.com/creasty/defaults v1.7.0
+	github.com/go-faker/faker/v4 v4.4.2
 	github.com/go-playground/validator/v10 v10.21.0
 	github.com/gocraft/work v0.5.1
 	github.com/golang-jwt/jwt/v5 v5.2.1
@@ -12,6 +14,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo-jwt/v4 v4.2.0
 	github.com/labstack/echo/v4 v4.12.0
+	golang.org/x/crypto v0.22.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gorm.io/driver/postgres v1.5.7
 	gorm.io/gorm v1.25.10
@@ -34,10 +37,9 @@ require (
 	github.com/robfig/cron v1.2.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
-	golang.org/x/crypto v0.22.0 // indirect
 	golang.org/x/net v0.24.0 // indirect
 	golang.org/x/sys v0.19.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/text v0.16.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 )

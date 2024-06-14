@@ -12,34 +12,36 @@ type oneTimePasswordRepository struct {
 	db *gorm.DB
 }
 
-func (r *oneTimePasswordRepository) Generate(ctx context.Context, otp *entity.OneTimePassword) (*entity.OneTimePassword, error) {
-	if err := r.db.WithContext(ctx).Create(&otp).Error; err != nil {
+func (r *oneTimePasswordRepository) Create(c context.Context, otp *entity.OneTimePassword) (*entity.OneTimePassword, error) {
+	if err := r.db.WithContext(c).Create(&otp).Error; err != nil {
 		return otp, err
 	}
 
 	return otp, nil
 }
 
-func (r *oneTimePasswordRepository) FindOneByCodeAndEmail(ctx context.Context, email, code string) (*entity.OneTimePassword, error) {
+func (r *oneTimePasswordRepository) FindOneByCodeAndEmail(c context.Context, email, code string) (*entity.OneTimePassword, error) {
 	otp := new(entity.OneTimePassword)
-	if err := r.db.WithContext(ctx).Where("email = ? AND otp_code = ? AND is_valid = true AND expires_at > NOW()", email, code, true).Take(&otp).Error; err != nil {
+	if err := r.db.WithContext(c).Where(
+		"email = ? AND otp_code = ? AND expires_at > NOW()",
+		email, code).Take(&otp).Error; err != nil {
 		return otp, err
 	}
 
 	return otp, nil
 }
 
-func (r *oneTimePasswordRepository) Used(ctx context.Context, id uuid.UUID) (bool, error) {
-	if err := r.db.WithContext(ctx).Model(&entity.OneTimePassword{}).Where("id = ?", id).Update("is_valid", false).Error; err != nil {
-		return false, err
+func (r *oneTimePasswordRepository) Delete(c context.Context, id uuid.UUID) error {
+	if err := r.db.WithContext(c).Delete(&entity.OneTimePassword{}, "id = ?", id).Error; err != nil {
+		return err
 	}
-	return true, nil
+	return nil
 }
 
 type OneTimePasswordRepository interface {
-	Generate(ctx context.Context, otp *entity.OneTimePassword) (*entity.OneTimePassword, error)
-	FindOneByCodeAndEmail(ctx context.Context, email, code string) (*entity.OneTimePassword, error)
-	Used(ctx context.Context, id uuid.UUID) (bool, error)
+	Create(c context.Context, otp *entity.OneTimePassword) (*entity.OneTimePassword, error)
+	FindOneByCodeAndEmail(c context.Context, email, code string) (*entity.OneTimePassword, error)
+	Delete(c context.Context, id uuid.UUID) error
 }
 
 func NewOneTimePasswordRepository(db *gorm.DB) OneTimePasswordRepository {

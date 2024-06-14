@@ -1,6 +1,7 @@
 package router
 
 import (
+	"github.com/labstack/echo/v4"
 	"net/http"
 
 	"github.com/bloomingbug/depublic/internal/http/handler"
@@ -10,22 +11,64 @@ import (
 const (
 	Administrator = "Administrator"
 	Buyer         = "Buyer"
-	Guest         = "Guest"
 )
 
 var (
 	allRoles = []string{Administrator, Buyer}
 	// onlyAdmin = []string{Administrator}
 	// onlyBuyer = []string{Buyer}
-	onlyGuest = []string{Guest}
 )
 
 func AppPublicRoutes(h map[string]interface{}) []*route.Route {
 	return []*route.Route{
 		{
-			Method:  http.MethodGet,
-			Path:    "/public",
-			Handler: h["hello"].(*handler.HelloHandler).Say,
+			Method: http.MethodGet,
+			Path:   "/public",
+			Handler: func(c echo.Context) error {
+				return h["hello"].(*handler.HelloHandler).Say(c)
+			},
+		},
+		{
+			Method: http.MethodPost,
+			Path:   "/request-otp",
+			Handler: func(c echo.Context) error {
+				return h["otp"].(*handler.OneTimePasswordHandler).Generate(c)
+			},
+		},
+		{
+			Method: http.MethodPost,
+			Path:   "/verify-otp",
+			Handler: func(c echo.Context) error {
+				return h["token"].(*handler.TokenHandler).GenerateForRegister(c)
+			},
+		},
+		{
+			Method: http.MethodPost,
+			Path:   "/auth/register",
+			Handler: func(c echo.Context) error {
+				return h["user"].(*handler.UserHandler).Registration(c)
+			},
+		},
+		{
+			Method: http.MethodPost,
+			Path:   "/auth/login",
+			Handler: func(c echo.Context) error {
+				return h["user"].(*handler.UserHandler).Login(c)
+			},
+		},
+		{
+			Method: http.MethodPost,
+			Path:   "/forgot-password",
+			Handler: func(c echo.Context) error {
+				return h["token"].(*handler.TokenHandler).GenerateForForgotPassword(c)
+			},
+		},
+		{
+			Method: http.MethodPost,
+			Path:   "/reset-password",
+			Handler: func(c echo.Context) error {
+				return h["user"].(*handler.UserHandler).ResetPassword(c)
+			},
 		},
 	}
 }
@@ -33,16 +76,12 @@ func AppPublicRoutes(h map[string]interface{}) []*route.Route {
 func AppPrivateRoutes(h map[string]interface{}) []*route.Route {
 	return []*route.Route{
 		{
-			Method:  http.MethodGet,
-			Path:    "/private",
-			Handler: h["hello"].(*handler.HelloHandler).Say,
-			Roles:   allRoles,
-		},
-		{
-			Method:  http.MethodPost,
-			Path:    "/request-otp",
-			Handler: h["otp"].(*handler.OneTimePasswordHandler).Generate,
-			Roles:   onlyGuest,
+			Method: http.MethodGet,
+			Path:   "/private",
+			Handler: func(c echo.Context) error {
+				return h["hello"].(*handler.HelloHandler).Say(c)
+			},
+			Roles: allRoles,
 		},
 	}
 }

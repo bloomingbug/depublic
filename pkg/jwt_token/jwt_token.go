@@ -18,7 +18,7 @@ type JwtCustomClaims struct {
 }
 
 func (t *jwtToken) GenerateAccessToken(claims JwtCustomClaims) (string, error) {
-	plainToken := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
+	plainToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	encodedToken, err := plainToken.SignedString([]byte(t.secretKey))
 

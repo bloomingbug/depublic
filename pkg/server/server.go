@@ -2,26 +2,42 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
+	"github.com/bloomingbug/depublic/configs"
+	"github.com/bloomingbug/depublic/internal/http/binder"
 	"github.com/bloomingbug/depublic/internal/http/middlewares"
 	"github.com/bloomingbug/depublic/pkg/response"
 	"github.com/bloomingbug/depublic/pkg/route"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type Server struct {
 	*echo.Echo
+	cfg *configs.Config
 }
 
-func NewServer(publicRoutes, privateRoutes []*route.Route, secretKey string) *Server {
+func NewServer(cfg *configs.Config, binder *binder.Binder, publicRoutes, privateRoutes []*route.Route) *Server {
 	e := echo.New()
+	e.HideBanner = true
+	e.Binder = binder
 
-	mw := middlewares.NewMiddleware(secretKey)
+	e.Use(
+		middleware.Logger(),
+		middleware.Recover(),
+		middleware.CORSWithConfig(middleware.CORSConfig{
+			AllowOrigins: []string{fmt.Sprintf("%s:%s", cfg.URL, cfg.Port), "https://midtrans.com"},
+			AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+		}),
+	)
+
+	authMiddleware := middlewares.NewMiddleware(cfg.JWT.SecretKey)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, response.Success(http.StatusOK, true, "API Depublic", nil))
@@ -37,21 +53,22 @@ func NewServer(publicRoutes, privateRoutes []*route.Route, secretKey string) *Se
 
 	if len(privateRoutes) > 0 {
 		for _, r := range privateRoutes {
-			endpoint.Add(r.Method, r.Path, r.Handler, mw.For(r.Roles...))
+			endpoint.Add(r.Method, r.Path, r.Handler, authMiddleware.For(r.Roles...))
 		}
 	}
 
-	return &Server{e}
+	return &Server{e, cfg}
 }
 
 func (s *Server) Run() {
-	runServer(s)
+	splash()
+	runServer(s, s.cfg.Port)
 	gracefulShutdown(s)
 }
 
-func runServer(s *Server) {
+func runServer(s *Server, port string) {
 	go func() {
-		err := s.Start(":8080")
+		err := s.Start(fmt.Sprintf(":%s", port))
 		log.Fatal(err)
 	}()
 }
@@ -71,4 +88,18 @@ func gracefulShutdown(s *Server) {
 			s.Logger.Fatal("Server Shutdown: ", err)
 		}
 	}()
+}
+
+func splash() {
+	colorReset := "\033[0m"
+
+	splashText := `      %##%#             #%##%       %%%%%%  *#%%%#.       #%%%%%#%* .%%%%%%%%%%%%%%%%%%%%# *%%%%%. 
+     .%%%%%#%,         ,%%%%%%%      %%%%%%  *%%%%%.    #%%%%%%#   .%%%%%%%%%%%%%%%%%%#%%   *%%%%%. 
+     %%%%#%%%##       #%%%%%%%%%     %%%%%%  *%%%%%. ##%%%%%(              (%%%%%           *%%%%%. 
+    ##%%%(*%#%%#    .%%%%%.%%%%##    %%%%%%  *%%%%#%%%##%.                 (%%%%%           *%%%%%. 
+   /#%%#%   ##%%%( #%%#%%   %%%%%,   %%%%%%  *%%%##*%%%%%%%,               (%%%%%           *%%%%%. 
+  .%#%%#     ##%%%%%#%#(    *%%%%%   %%%%%%  *%%%%%.  (%%%%%%%*            (%%%%%           *%%%%%. 
+  %%%%%(      *%#%%%%%.      #%%%%%  %%%%%%  *%%%%%.     (#%%%#%%(         (%%%%%           *%%%#%. 
+ (#####         /%%#*         #####/ ######  *#####.        (#######(      (#####           *#####. `
+	fmt.Println(colorReset, splashText)
 }

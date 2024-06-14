@@ -7,3 +7,4 @@ erd.mwb.bak
 .env
 .env.backup
 .env.production
+/storage
