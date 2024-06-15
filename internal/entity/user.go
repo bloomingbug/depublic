@@ -21,20 +21,22 @@ const (
 )
 
 type User struct {
-	ID        uuid.UUID  `json:"id"`
-	Name      string     `json:"name"`
-	Email     string     `json:"email"`
-	Password  string     `json:"password"`
-	Role      Role       `json:"role"`
-	Phone     string     `json:"phone,omitempty"`
-	Address   string     `json:"address,omitempty"`
-	Avatar    string     `json:"avatar,omitempty"`
-	Birthdate *time.Time `json:"birthdate,omitempty"`
-	Gender    Gender     `json:"gender,omitempty"`
+	ID            uuid.UUID      `json:"id"`
+	Name          string         `json:"name"`
+	Email         string         `json:"email"`
+	Password      string         `json:"-"`
+	Role          Role           `json:"role"`
+	Phone         *string        `json:"phone,omitempty"`
+	Address       *string        `json:"address,omitempty"`
+	Avatar        *string        `json:"avatar,omitempty"`
+	Birthdate     *time.Time     `json:"birthdate,omitempty"`
+	Gender        *Gender        `json:"gender,omitempty"`
+	Notifications []Notification `gorm:"foreignKey:UserID;references:ID" json:"notifications"`
+	Transactions  []Transaction  `json:"transactions"`
 	Auditable
 }
 
-func NewUser(name, email, password, phone, address, avatar string, birthdate *time.Time, gender Gender, role Role) *User {
+func NewUser(name, email, password string, phone, address, avatar *string, birthdate *time.Time, gender *Gender, role Role) *User {
 	return &User{
 		ID:        uuid.New(),
 		Name:      name,
