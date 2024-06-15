@@ -1,7 +1,5 @@
 BEGIN;
 
-CREATE TYPE gender AS ENUM ('F', 'M');
-
 CREATE TABLE IF NOT EXISTS public.tickets (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     transaction_id UUID NOT NULL,

@@ -1,7 +1,7 @@
 BEGIN;
 
 CREATE TABLE IF NOT EXISTS public.categories(
-    id VARCHAR(255) PRIMARY KEY,
+    id SERIAL NOT NULL PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
 
