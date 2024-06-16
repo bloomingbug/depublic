@@ -12,6 +12,13 @@ import (
 )
 
 func CreateUserSeeds(db *gorm.DB) {
+	getStringPointer := func(s string) *string {
+		return &s
+	}
+
+	male := entity.Male
+	female := entity.Female
+
 	data := map[string]entity.User{
 		"admin": {
 			ID:       uuid.New(),
@@ -19,14 +26,14 @@ func CreateUserSeeds(db *gorm.DB) {
 			Email:    "admin@mail.com",
 			Password: "password",
 			Role:     entity.Admin,
-			Phone:    faker.Phonenumber(),
-			Address:  faker.DomainName(),
-			Avatar:   faker.Sentence(),
+			Phone:    getStringPointer(faker.Phonenumber()),
+			Address:  getStringPointer(faker.DomainName()),
+			Avatar:   getStringPointer(faker.Sentence()),
 			Birthdate: func() *time.Time {
 				date, _ := time.Parse("2006-01-02", faker.Date())
 				return &date
 			}(),
-			Gender: entity.Male,
+			Gender: &male,
 		},
 		"buyer": {
 			ID:       uuid.New(),
@@ -34,14 +41,14 @@ func CreateUserSeeds(db *gorm.DB) {
 			Email:    "buyer@mail.com",
 			Password: "password",
 			Role:     entity.Buyer,
-			Phone:    faker.Phonenumber(),
-			Address:  faker.DomainName(),
-			Avatar:   faker.Sentence(),
+			Phone:    getStringPointer(faker.Phonenumber()),
+			Address:  getStringPointer(faker.DomainName()),
+			Avatar:   getStringPointer(faker.Sentence()),
 			Birthdate: func() *time.Time {
 				date, _ := time.Parse("2006-01-02", faker.Date())
 				return &date
 			}(),
-			Gender: entity.Female,
+			Gender: &female,
 		},
 	}
 

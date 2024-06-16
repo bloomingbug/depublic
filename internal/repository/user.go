@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"reflect"
 
 	"github.com/bloomingbug/depublic/internal/entity"
 	"gorm.io/gorm"
@@ -27,34 +28,16 @@ func (r *userRepository) FindByEmail(c context.Context, email string) (*entity.U
 }
 
 func (r *userRepository) Edit(c context.Context, user *entity.User) (*entity.User, error) {
-	fields := make(map[string]interface{})
+	var fields entity.User
 
-	if user.Email != "" {
-		fields["email"] = user.Email
-	}
-	if user.Password != "" {
-		fields["password"] = user.Password
-	}
-	if user.Role != "" {
-		fields["role"] = user.Role
-	}
-	if user.Avatar != "" {
-		fields["avatar"] = user.Avatar
-	}
-	if user.Address != "" {
-		fields["address"] = user.Address
-	}
-	if user.Birthdate != nil {
-		fields["birthdate"] = user.Birthdate
-	}
-	if user.Gender != "" {
-		fields["gender"] = user.Gender
-	}
-	if user.Phone != "" {
-		fields["phone"] = user.Phone
-	}
-	if user.Name != "" {
-		fields["name"] = user.Name
+	val := reflect.ValueOf(user).Elem()
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
+		fieldName := val.Type().Field(i).Name
+
+		if !field.IsZero() {
+			reflect.ValueOf(&fields).Elem().FieldByName(fieldName).Set(field)
+		}
 	}
 
 	if err := r.db.WithContext(c).Model(&user).Where("id = ?", user.ID).Updates(fields).Error; err != nil {
