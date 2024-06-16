@@ -25,22 +25,9 @@ type userService struct {
 	jwtToken        jwt_token.JwtToken
 }
 
-func (s *userService) UserRegistration(
-	c echo.Context,
-	token string,
-	user *entity.User) (*entity.User, error) {
-	tokenData, err := s.tokenRepository.FindByIdAndEmail(c.Request().Context(), uuid.MustParse(token), user.Email)
-	if err != nil || tokenData == nil {
-		return nil, errors.New("invalid token")
-	}
-
-	if tokenData.Action != entity.Register {
-		return nil, errors.New("invalid token")
-	}
-
-	err = s.tokenRepository.Delete(c.Request().Context(), tokenData.ID)
-	if err != nil {
-		return nil, err
+func (s *userService) handleAvatarUpload(c echo.Context, avatar *string) (*string, error) {
+	if avatar == nil {
+		return nil, nil
 	}
 
 	file, err := c.FormFile("avatar")
@@ -52,16 +39,11 @@ func (s *userService) UserRegistration(
 	if err != nil {
 		return nil, err
 	}
+
 	avatarName := fmt.Sprintf("%s-%s", strconv.FormatInt(time.Now().Unix(), 10), file.Filename)
 	fullPath := filepath.Join(currentDir, "storage", "user", "avatars", avatarName)
 
-	err = os.MkdirAll(filepath.Dir(fullPath), os.ModePerm)
-	if err != nil {
-		return nil, err
-	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
+	if err = os.MkdirAll(filepath.Dir(fullPath), os.ModePerm); err != nil {
 		return nil, err
 	}
 
@@ -78,6 +60,33 @@ func (s *userService) UserRegistration(
 	defer src.Close()
 
 	if _, err = io.Copy(dst, src); err != nil {
+		return nil, err
+	}
+
+	return &avatarName, nil
+}
+
+func (s *userService) UserRegistration(
+	c echo.Context,
+	token string,
+	user *entity.User) (*entity.User, error) {
+	tokenData, err := s.tokenRepository.FindByIdAndEmail(c.Request().Context(), uuid.MustParse(token), user.Email)
+	if err != nil || tokenData == nil || tokenData.Action != entity.Register {
+		return nil, errors.New("invalid token")
+	}
+
+	err = s.tokenRepository.Delete(c.Request().Context(), tokenData.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	avatarName, err := s.handleAvatarUpload(c, user.Avatar)
+	if err != nil {
+		return nil, err
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
 		return nil, err
 	}
 
@@ -105,12 +114,18 @@ func (s *userService) Login(c context.Context, email, password string) (string, 
 
 	now := time.Now()
 	expiredTime := now.Local().Add(24 * time.Hour)
+	var avatar string
+	if user.Avatar != nil {
+		avatar = *user.Avatar
+	} else {
+		avatar = ""
+	}
 	claims := jwt_token.JwtCustomClaims{
 		ID:     user.ID.String(),
 		Name:   user.Name,
 		Email:  user.Email,
 		Role:   string(user.Role),
-		Avatar: user.Avatar,
+		Avatar: avatar,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "Depublic",
 			IssuedAt:  jwt.NewNumericDate(now),
@@ -161,7 +176,7 @@ func (s *userService) ChangePassword(c context.Context, token, password string) 
 	}
 
 	user = entity.ChangePassword(user.ID, string(hashedPassword))
-	user, err = s.userRepository.Edit(c, user)
+	_, err = s.userRepository.Edit(c, user)
 	if err != nil {
 		return err
 	}
