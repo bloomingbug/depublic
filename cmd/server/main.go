@@ -17,16 +17,16 @@ func main() {
 	cfg, err := configs.NewConfig(".env")
 	checkError(err)
 
-	postgres, err := postgres.InitProgres(&cfg.Postgres)
+	pg, err := postgres.InitProgres(&cfg.Postgres)
 	checkError(err)
 
 	redis := cache.InitCache(&cfg.Redis)
 
 	jwtToken := jwt_token.NewJwtToken(cfg.JWT.SecretKey)
-	scheduler := scheduler.NewScheduler(redis, cfg.Namespace)
+	sch := scheduler.NewScheduler(redis, cfg.Namespace)
 
-	publicRoutes := builder.BuildAppPublicRoutes(postgres, jwtToken, scheduler)
-	privateRoutes := builder.BuildAppPrivateRoutes(postgres, redis)
+	publicRoutes := builder.BuildAppPublicRoutes(pg, jwtToken, sch)
+	privateRoutes := builder.BuildAppPrivateRoutes(pg, redis)
 
 	echoBinder := &echo.DefaultBinder{}
 	formValidator := form_validator.NewFormValidator()

@@ -8,10 +8,8 @@ import (
 type Event struct {
 	ID               uuid.UUID   `json:"id"`
 	Name             string      `json:"name"`
-	StartDate        time.Time   `json:"start_date"`
-	EndDate          *time.Time  `json:"end_date,omitempty"`
-	StartTime        time.Time   `json:"start_time"`
-	EndTime          *time.Time  `json:"end_time,omitempty"`
+	Start            time.Time   `json:"start"`
+	End              time.Time   `json:"end"`
 	Address          string      `json:"address"`
 	AddressLink      string      `json:"address_link"`
 	Organizer        string      `json:"organizer"`
@@ -42,10 +40,8 @@ type NewEventParams struct {
 	LocationID       int64
 	CategoryID       int64
 	TopicID          int64
-	StartDate        time.Time
-	StartTime        time.Time
-	EndDate          *time.Time
-	EndTime          *time.Time
+	Start            time.Time
+	End              time.Time
 	Address          string
 	AddressLink      string
 	Organizer        string
@@ -71,10 +67,8 @@ func NewEvent(params NewEventParams) *Event {
 		LocationID:       params.LocationID,
 		CategoryID:       params.CategoryID,
 		TopicID:          params.TopicID,
-		StartDate:        params.StartDate,
-		EndDate:          params.EndDate,
-		StartTime:        params.StartTime,
-		EndTime:          params.EndTime,
+		Start:            params.Start,
+		End:              params.End,
 		Address:          params.Address,
 		AddressLink:      params.AddressLink,
 		Organizer:        params.Organizer,
@@ -104,10 +98,8 @@ type EditEventParams struct {
 	LocationID       int64
 	CategoryID       int64
 	TopicID          int64
-	StartDate        time.Time
-	StartTime        time.Time
-	EndDate          *time.Time
-	EndTime          *time.Time
+	Start            time.Time
+	End              time.Time
 	Address          string
 	AddressLink      string
 	Organizer        string
@@ -126,10 +118,8 @@ func EditEvent(params EditEventParams) *Event {
 		LocationID:       params.LocationID,
 		CategoryID:       params.CategoryID,
 		TopicID:          params.TopicID,
-		StartDate:        params.StartDate,
-		EndDate:          params.EndDate,
-		StartTime:        params.StartTime,
-		EndTime:          params.EndTime,
+		Start:            params.Start,
+		End:              params.End,
 		Address:          params.Address,
 		AddressLink:      params.AddressLink,
 		Organizer:        params.Organizer,

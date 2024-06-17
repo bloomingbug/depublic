@@ -11,7 +11,10 @@ CREATE TABLE IF NOT EXISTS public.tickets (
     phone VARCHAR(16),
     email VARCHAR(255),
     gender gender,
-    price INT
+    price INT,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMP
 );
 
 COMMIT;

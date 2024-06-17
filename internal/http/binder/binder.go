@@ -1,6 +1,7 @@
 package binder
 
 import (
+	"errors"
 	"github.com/bloomingbug/depublic/internal/http/form_validator"
 	"github.com/creasty/defaults"
 	"github.com/go-playground/validator/v10"
@@ -28,7 +29,8 @@ func (b *Binder) Bind(i interface{}, c echo.Context) error {
 	}
 
 	if err := b.Validate(i); err != nil {
-		errs := err.(validator.ValidationErrors)
+		var errs validator.ValidationErrors
+		errors.As(err, &errs)
 		return errs
 	}
 

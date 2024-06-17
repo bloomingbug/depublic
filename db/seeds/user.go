@@ -52,21 +52,20 @@ func CreateUserSeeds(db *gorm.DB) {
 		},
 	}
 
-	for _, data := range data {
-		pw, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
+	for _, user := range data {
+		pw, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 		if err != nil {
-			fmt.Printf("Error when create user %s: %s\n", data.Name, err)
-			return
+			fmt.Printf("Error when create user %s: %s\n", user.Name, err)
 		}
-		data := entity.NewUser(data.Name,
-			data.Email,
+		data := entity.NewUser(user.Name,
+			user.Email,
 			string(pw),
-			data.Phone,
-			data.Address,
-			data.Avatar,
-			data.Birthdate,
-			data.Gender,
-			data.Role,
+			user.Phone,
+			user.Address,
+			user.Avatar,
+			user.Birthdate,
+			user.Gender,
+			user.Role,
 		)
 
 		if err := db.Create(&data).Error; err != nil {
