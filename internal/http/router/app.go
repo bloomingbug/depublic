@@ -70,6 +70,13 @@ func AppPublicRoutes(h map[string]interface{}) []*route.Route {
 				return h["user"].(*handler.UserHandler).ResetPassword(c)
 			},
 		},
+		{
+			Method: http.MethodGet,
+			Path:   "/events",
+			Handler: func(c echo.Context) error {
+				return h["event"].(*handler.EventHandler).GetAllEvent(c)
+			},
+		},
 	}
 }
 

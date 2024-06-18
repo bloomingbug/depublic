@@ -6,30 +6,30 @@ import (
 )
 
 type Event struct {
-	ID               uuid.UUID   `json:"id"`
-	Name             string      `json:"name"`
-	Start            time.Time   `json:"start"`
-	End              time.Time   `json:"end"`
-	Address          string      `json:"address"`
-	AddressLink      string      `json:"address_link"`
-	Organizer        string      `json:"organizer"`
-	OrganizerLogo    *string     `json:"organizer_logo,omitempty"`
-	Cover            *string     `json:"cover,omitempty"`
-	Description      string      `json:"description"`
-	TermAndCondition string      `json:"term_and_condition"`
-	IsPaid           bool        `json:"is_paid"`
-	IsPublic         bool        `json:"is_public"`
-	IsApproved       bool        `json:"is_approved"`
-	ApprovedAt       *time.Time  `json:"approved_at,omitempty"`
-	UserID           uuid.UUID   `json:"-"`
-	User             User        `json:"user"`
-	LocationID       int64       `json:"-"`
-	Location         Location    `json:"location"`
-	CategoryID       int64       `json:"-"`
-	Category         Category    `json:"category"`
-	TopicID          int64       `json:"-"`
-	Topic            Topic       `json:"topic"`
-	Timetables       []Timetable `json:"timetables"`
+	ID               uuid.UUID    `json:"id"`
+	Name             string       `json:"name"`
+	Start            time.Time    `json:"start"`
+	End              time.Time    `json:"end"`
+	Address          string       `json:"address"`
+	AddressLink      string       `json:"address_link"`
+	Organizer        string       `json:"organizer"`
+	OrganizerLogo    *string      `json:"organizer_logo,omitempty"`
+	Cover            *string      `json:"cover,omitempty"`
+	Description      string       `json:"description"`
+	TermAndCondition string       `json:"term_and_condition"`
+	IsPaid           bool         `json:"is_paid"`
+	IsPublic         bool         `json:"is_public"`
+	IsApproved       bool         `json:"is_approved"`
+	ApprovedAt       *time.Time   `json:"approved_at,omitempty"`
+	UserID           uuid.UUID    `json:"-"`
+	User             *User        `gorm:"foreignKey:UserID;references:ID" json:"user,omitempty"`
+	LocationID       int64        `json:"-"`
+	Location         *Location    `gorm:"foreignKey:LocationID;references:ID" json:"location,omitempty"`
+	CategoryID       int64        `json:"-"`
+	Category         *Category    `gorm:"foreignKey:CategoryID;references:ID" json:"category,omitempty"`
+	TopicID          int64        `json:"-"`
+	Topic            *Topic       `gorm:"foreignKey:TopicID;references:ID" json:"topic,omitempty"`
+	Timetables       *[]Timetable `gorm:"foreignKey:EventID;references:ID" json:"timetables,omitempty"`
 	Auditable
 }
 

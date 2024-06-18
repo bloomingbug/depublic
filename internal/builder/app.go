@@ -33,6 +33,11 @@ func BuildAppPublicRoutes(db *gorm.DB, jwtToken jwt_token.JwtToken, scheduler sc
 	userHandler := handler.NewUserHandler(userService)
 	handlers["user"] = &userHandler
 
+	eventRepository := repository.NewEventRepository(db)
+	eventService := service.NewEventService(eventRepository)
+	eventHandler := handler.NewEventHandler(eventService)
+	handlers["event"] = &eventHandler
+
 	return router.AppPublicRoutes(handlers)
 }
 
@@ -41,5 +46,6 @@ func BuildAppPrivateRoutes(db *gorm.DB, redisDB *redis.Pool) []*route.Route {
 
 	helloHandler := handler.NewHelloHandler()
 	handlers["hello"] = &helloHandler
+
 	return router.AppPrivateRoutes(handlers)
 }
