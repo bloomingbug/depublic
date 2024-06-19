@@ -77,6 +77,13 @@ func AppPublicRoutes(h map[string]interface{}) []*route.Route {
 				return h["event"].(*handler.EventHandler).GetAllEvent(c)
 			},
 		},
+		{
+			Method: http.MethodGet,
+			Path:   "/events/:id",
+			Handler: func(c echo.Context) error {
+				return h["event"].(*handler.EventHandler).GetDetailEvent(c)
+			},
+		},
 	}
 }
 

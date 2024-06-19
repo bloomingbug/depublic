@@ -59,6 +59,16 @@ func (h *EventHandler) GetAllEvent(c echo.Context) error {
 		events))
 }
 
+func (h *EventHandler) GetDetailEvent(c echo.Context) error {
+	id := c.Param("id")
+	event, err := h.eventService.FindEventById(c, id)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, response.Error(http.StatusNotFound, false, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, response.Success(http.StatusOK, true, "sukses menampilkan detail event", event))
+}
+
 func (h *EventHandler) getDefaultInt(value *int, defaultValue int) int {
 	if value != nil {
 		return *value

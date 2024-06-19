@@ -13,7 +13,7 @@ type Timetable struct {
 	Description *string   `json:"description,omitempty"`
 	Stock       int32     `json:"stock"`
 	EventID     uuid.UUID `json:"-"`
-	Event       Event     `json:"event"`
+	Event       *Event    `json:"event,omitempty"`
 	Auditable
 }
 

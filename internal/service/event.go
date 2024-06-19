@@ -37,9 +37,14 @@ func (s *eventService) GetAllEventWithPaginateAndFilter(c echo.Context,
 	return &data, nil
 }
 
+func (s *eventService) FindEventById(c echo.Context, id string) (*entity.Event, error) {
+	return s.eventReposioty.FindById(c.Request().Context(), id)
+}
+
 type EventService interface {
 	GetAllEvent(c echo.Context) (*[]entity.Event, error)
 	GetAllEventWithPaginateAndFilter(c echo.Context, paginate *binder.PaginateRequest, filter *binder.FilterRequest, sort *binder.SortRequest) (*map[string]interface{}, error)
+	FindEventById(c echo.Context, id string) (*entity.Event, error)
 }
 
 func NewEventService(eventRepository repository.EventRepository) EventService {
