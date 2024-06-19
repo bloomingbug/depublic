@@ -4,6 +4,7 @@ import (
 	"github.com/bloomingbug/depublic/internal/entity"
 	"github.com/bloomingbug/depublic/internal/http/binder"
 	"github.com/bloomingbug/depublic/internal/repository"
+	"github.com/bloomingbug/depublic/internal/util"
 	"github.com/labstack/echo/v4"
 )
 
@@ -20,18 +21,25 @@ func (s *eventService) GetAllEvent(c echo.Context) (*[]entity.Event, error) {
 	return &events, nil
 }
 
-func (s *eventService) GetAllEventWithPaginate(c echo.Context, paginate binder.PaginateRequest) (*map[string]interface{}, error) {
-	events, err := s.eventReposioty.GetAllPaginate(c.Request().Context(), *paginate.Page, *paginate.Limit)
+func (s *eventService) GetAllEventWithPaginateAndFilter(c echo.Context,
+	paginate *binder.PaginateRequest,
+	filter *binder.FilterRequest,
+	sort *binder.SortRequest) (*map[string]interface{}, error) {
+	events, totalItems, err := s.eventReposioty.GetAllWithPaginateAndFilter(c.Request().Context(), *paginate, *filter, *sort)
 	if err != nil {
 		return nil, err
 	}
 
-	return &events, nil
+	totalPages := int((totalItems + int64(*paginate.Limit) - 1) / int64(*paginate.Limit))
+
+	data := util.NewPagination(*paginate.Limit, *paginate.Page, int(totalItems), totalPages, events).Response()
+
+	return &data, nil
 }
 
 type EventService interface {
 	GetAllEvent(c echo.Context) (*[]entity.Event, error)
-	GetAllEventWithPaginate(c echo.Context, paginate binder.PaginateRequest) (*map[string]interface{}, error)
+	GetAllEventWithPaginateAndFilter(c echo.Context, paginate *binder.PaginateRequest, filter *binder.FilterRequest, sort *binder.SortRequest) (*map[string]interface{}, error)
 }
 
 func NewEventService(eventRepository repository.EventRepository) EventService {

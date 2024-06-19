@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"github.com/bloomingbug/depublic/internal/entity"
+	"github.com/bloomingbug/depublic/internal/http/binder"
 	"github.com/bloomingbug/depublic/internal/util"
 	"gorm.io/gorm"
 )
@@ -23,42 +24,39 @@ func (r *eventRepository) GetAll(c context.Context) ([]entity.Event, error) {
 	return events, nil
 }
 
-func (r *eventRepository) GetAllPaginate(c context.Context, page, limit int) (map[string]interface{}, error) {
+func (r *eventRepository) GetAllWithPaginateAndFilter(c context.Context,
+	paginate binder.PaginateRequest,
+	filter binder.FilterRequest,
+	sort binder.SortRequest) ([]entity.Event, int64, error) {
 	var totalItems int64
 	events := make([]entity.Event, 0)
 
 	err := r.db.WithContext(c).
+		Scopes(util.Filter(&filter)).
 		Model(&entity.Event{}).
 		Where("is_public = ? AND is_approved = ?", true, true).
 		Count(&totalItems).Error
+
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-
-	totalPages := int((totalItems + int64(limit) - 1) / int64(limit))
-
 	if int(totalItems) <= 0 {
-		pagination := util.NewPagination(limit, page, int(totalItems), totalPages, []string{}).Response()
-
-		return pagination, nil
+		return nil, 0, nil
 	}
 
 	err = r.db.WithContext(c).
-		Scopes(util.Paginate(page, limit)).
+		Scopes(util.Paginate(*paginate.Page, *paginate.Limit), util.Filter(&filter), util.Sort(&sort)).
 		Where("is_public = ? AND is_approved = ?", true, true).Find(&events).Error
-
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	pagination := util.NewPagination(limit, page, int(totalItems), totalPages, events).Response()
-
-	return pagination, nil
+	return events, totalItems, nil
 }
 
 type EventRepository interface {
 	GetAll(c context.Context) ([]entity.Event, error)
-	GetAllPaginate(c context.Context, page, limit int) (map[string]interface{}, error)
+	GetAllWithPaginateAndFilter(c context.Context, paginate binder.PaginateRequest, filter binder.FilterRequest, sort binder.SortRequest) ([]entity.Event, int64, error)
 }
 
 func NewEventRepository(db *gorm.DB) EventRepository {

@@ -18,23 +18,37 @@ func (h *EventHandler) GetAllEvent(c echo.Context) error {
 		c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, err.Error()))
 	}
 
-	page := 1
-	limit := 10
-
-	if paginateReq.Page != nil {
-		page = *paginateReq.Page
-	}
-	if paginateReq.Limit != nil {
-		limit = *paginateReq.Limit
-	}
-
-	// Create an entity.Paginate object
-	paginate := binder.PaginateRequest{
+	page := h.getDefaultInt(paginateReq.Page, 1)
+	limit := h.getDefaultInt(paginateReq.Limit, 10)
+	paginate := &binder.PaginateRequest{
 		Page:  &page,
 		Limit: &limit,
 	}
 
-	events, err := h.eventService.GetAllEventWithPaginate(c, paginate)
+	filterReq := new(binder.FilterRequest)
+	if err := c.Bind(filterReq); err != nil {
+		c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, err.Error()))
+	}
+
+	filter := &binder.FilterRequest{
+		Keyword:  filterReq.Keyword,
+		Location: filterReq.Location,
+		Topic:    filterReq.Topic,
+		Category: filterReq.Category,
+		Time:     filterReq.Time,
+		IsPaid:   filterReq.IsPaid,
+	}
+
+	sortReq := new(binder.SortRequest)
+	if err := c.Bind(sortReq); err != nil {
+		c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, err.Error()))
+	}
+
+	sort := &binder.SortRequest{
+		Sort: sortReq.Sort,
+	}
+
+	events, err := h.eventService.GetAllEventWithPaginateAndFilter(c, paginate, filter, sort)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, err.Error()))
 	}
@@ -43,6 +57,13 @@ func (h *EventHandler) GetAllEvent(c echo.Context) error {
 		true,
 		"sukses menampilkan semua data event",
 		events))
+}
+
+func (h *EventHandler) getDefaultInt(value *int, defaultValue int) int {
+	if value != nil {
+		return *value
+	}
+	return defaultValue
 }
 
 func NewEventHandler(eventService service.EventService) EventHandler {
