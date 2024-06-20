@@ -18,6 +18,15 @@ func (s *transactionService) CreateTransaction(c echo.Context, transaction *enti
 	return transaction, nil
 }
 
+func (s *transactionService) FindTransactionByInvoice(c echo.Context, invoice string) (*entity.Transaction, error) {
+	transaction, err := s.transactionRepo.FindByInvoice(c.Request().Context(), invoice)
+	if err != nil {
+		return nil, err
+	}
+
+	return transaction, nil
+}
+
 func (s *transactionService) EditTransaction(c echo.Context, transaction *entity.Transaction) (*entity.Transaction, error) {
 	transaction, err := s.transactionRepo.Edit(c.Request().Context(), transaction)
 	if err != nil {
@@ -28,6 +37,7 @@ func (s *transactionService) EditTransaction(c echo.Context, transaction *entity
 
 type TransactionService interface {
 	CreateTransaction(c echo.Context, transaction *entity.Transaction) (*entity.Transaction, error)
+	FindTransactionByInvoice(c echo.Context, invoice string) (*entity.Transaction, error)
 	EditTransaction(c echo.Context, transaction *entity.Transaction) (*entity.Transaction, error)
 }
 

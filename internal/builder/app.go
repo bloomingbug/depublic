@@ -37,6 +37,20 @@ func BuildAppPublicRoutes(db *gorm.DB, redisDB *redis.Pool, jwtToken jwt_token.J
 	eventHandler := handler.NewEventHandler(eventService)
 	handlers["event"] = &eventHandler
 
+	timetableRepository := repository.NewTimetableRepository(db)
+	timetableService := service.NewTimetableService(timetableRepository)
+
+	transactionRepository := repository.NewTransactionRepository(db)
+	transactionService := service.NewTransactionService(transactionRepository)
+
+	ticketRepository := repository.NewTicketRepository(db)
+	ticketService := service.NewTicketService(ticketRepository)
+
+	paymentService := service.NewPaymentService(paymentGateway)
+
+	transactionHandler := handler.NewTransactionHandler(eventService, timetableService, transactionService, ticketService, paymentService)
+	handlers["transaction"] = &transactionHandler
+
 	return router.AppPublicRoutes(handlers)
 }
 

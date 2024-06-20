@@ -31,10 +31,7 @@ func NewServer(cfg *configs.Config, binder *binder.Binder, publicRoutes, private
 	e.Use(
 		middleware.Logger(),
 		middleware.Recover(),
-		middleware.CORSWithConfig(middleware.CORSConfig{
-			AllowOrigins: []string{fmt.Sprintf("%s:%s", cfg.URL, cfg.Port), "https://midtrans.com"},
-			AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
-		}),
+		middleware.CORS(),
 	)
 
 	authMiddleware := middlewares.NewMiddleware(cfg.JWT.SecretKey)

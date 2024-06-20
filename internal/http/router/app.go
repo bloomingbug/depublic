@@ -77,6 +77,13 @@ func AppPublicRoutes(h map[string]interface{}) []*route.Route {
 				return h["event"].(*handler.EventHandler).GetDetailEvent(c)
 			},
 		},
+		{
+			Method: http.MethodPost,
+			Path:   "/transactions/webhook",
+			Handler: func(c echo.Context) error {
+				return h["transaction"].(*handler.TransactionHandler).WebHookTransaction(c)
+			},
+		},
 	}
 }
 

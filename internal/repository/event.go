@@ -64,7 +64,7 @@ func (r *eventRepository) FindById(c context.Context, id uuid.UUID) (*entity.Eve
 		Preload("Category").
 		Preload("Topic").
 		Preload("Timetables").
-		First(&event).Error; err != nil {
+		Take(&event).Error; err != nil {
 		return nil, err
 	}
 

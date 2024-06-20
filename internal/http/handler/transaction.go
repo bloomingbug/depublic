@@ -159,6 +159,46 @@ func (h *TransactionHandler) CreateTransaction(c echo.Context) error {
 		dataResponse))
 }
 
+func (h *TransactionHandler) WebHookTransaction(c echo.Context) error {
+	req := new(binder.MidtransRequest)
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, form_validator.ValidatorErrors(err)))
+	}
+
+	transaction, err := h.transactionService.FindTransactionByInvoice(c, req.OrderID)
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, response.Error(http.StatusUnprocessableEntity, false, err.Error()))
+	}
+
+	var status string
+
+	switch req.TransactionStatus {
+	case "settlement":
+		status = "paid"
+	case "pending":
+		status = "pending"
+	case "expire":
+		status = "expired"
+	case "deny":
+		status = "failed"
+	case "cancel":
+		status = "failed"
+	default:
+		status = "unpaid"
+	}
+
+	transacDTO := entity.UpdateStatusTransaction(transaction.ID, status)
+	transacResponse, err := h.transactionService.EditTransaction(c, transacDTO)
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, response.Error(http.StatusUnprocessableEntity, false, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, response.Success(http.StatusOK,
+		true,
+		"berhasil update status transaksi",
+		transacResponse))
+}
+
 func FilterTimetableByID(data []entity.Timetable, id uuid.UUID) (*entity.Timetable, error) {
 	for _, d := range data {
 		if d.ID == id {
