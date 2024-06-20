@@ -15,6 +15,7 @@ type Ticket struct {
 	Email         string       `json:"email"`
 	Gender        *Gender      `json:"gender,omitempty"`
 	Price         int64        `json:"price"`
+	IsValid       bool         `json:"is_valid"`
 	TransactionID uuid.UUID    `json:"-"`
 	Transaction   *Transaction `gorm:"foreignKey:TransactionID;references:ID" json:"transaction,omitempty"`
 	TimetableID   uuid.UUID    `json:"-"`
@@ -46,6 +47,7 @@ func NewTicket(params NewTicketParams) *Ticket {
 		Email:         params.Email,
 		Gender:        params.Gender,
 		Price:         params.Price,
+		IsValid:       true,
 		TimetableID:   params.TimetableID,
 		TransactionID: params.TransactionID,
 	}

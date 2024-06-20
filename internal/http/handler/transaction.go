@@ -64,9 +64,7 @@ func (h *TransactionHandler) CreateTransaction(c echo.Context) error {
 				return c.JSON(http.StatusUnprocessableEntity, response.Error(http.StatusUnprocessableEntity, false, "Not enough stock"))
 			}
 
-			if err == nil {
-				amount += *timetable.Price
-			}
+			amount += *timetable.Price
 		}
 	}
 
@@ -110,7 +108,7 @@ func (h *TransactionHandler) CreateTransaction(c echo.Context) error {
 		ticketsData = append(ticketsData, *entity.NewTicket(params))
 	}
 
-	_, err = h.ticketService.CreateBatchTicket(c, transaction.ID, &ticketsData)
+	tickets, err := h.ticketService.CreateBatchTicket(c, transaction.ID, &ticketsData)
 	if err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, response.Error(http.StatusUnprocessableEntity, false, err.Error()))
 	}
@@ -120,10 +118,16 @@ func (h *TransactionHandler) CreateTransaction(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, response.Error(http.StatusInternalServerError, false, err.Error()))
 	}
 
-	paymentReq := entity.NewPayment(transaction.Invoice, transaction.GrandTotal, userClaims.Name, "", userClaims.Email)
-	payment, err := h.paymentGateway.CreateTransaction(c.Request().Context(), paymentReq)
-	if err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, response.Error(http.StatusUnprocessableEntity, false, err.Error()))
+	var payment *string = nil
+	var status string = "paid"
+
+	if event.IsPaid {
+		paymentReq := entity.NewPayment(transaction.Invoice, transaction.GrandTotal, userClaims.Name, "", userClaims.Email)
+		payment, err = h.paymentGateway.CreateTransaction(c.Request().Context(), paymentReq)
+		if err != nil {
+			return c.JSON(http.StatusUnprocessableEntity, response.Error(http.StatusUnprocessableEntity, false, err.Error()))
+		}
+		status = "unpaid"
 	}
 
 	updateTransactionParams := entity.UpdateTransactionParams{
@@ -131,7 +135,7 @@ func (h *TransactionHandler) CreateTransaction(c echo.Context) error {
 		Invoice:    nil,
 		GrandTotal: nil,
 		SnapToken:  payment,
-		Status:     nil,
+		Status:     &status,
 	}
 
 	updateTransaction := entity.UpdateTransaction(updateTransactionParams)
@@ -140,10 +144,19 @@ func (h *TransactionHandler) CreateTransaction(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, response.Error(http.StatusInternalServerError, false, err.Error()))
 	}
 
+	dataResponse := echo.Map{
+		"tickets": tickets,
+	}
+	if event.IsPaid {
+		dataResponse = echo.Map{
+			"payment_url": payment,
+		}
+	}
+
 	return c.JSON(http.StatusCreated, response.Success(http.StatusCreated,
 		true,
 		"sukses menambahkan transaksi",
-		echo.Map{"payment_url": payment}))
+		dataResponse))
 }
 
 func FilterTimetableByID(data []entity.Timetable, id uuid.UUID) (*entity.Timetable, error) {
