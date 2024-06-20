@@ -12,12 +12,14 @@ type Timetable struct {
 	End         time.Time `json:"end"`
 	Description *string   `json:"description,omitempty"`
 	Stock       int32     `json:"stock"`
+	Price       *int64    `json:"price,omitempty"`
 	EventID     uuid.UUID `json:"-"`
 	Event       *Event    `json:"event,omitempty"`
+	Tickets     *[]Ticket `gorm:"TimetableID;references:ID" json:"tickets,omitempty"`
 	Auditable
 }
 
-func NewTimetable(eventId uuid.UUID, name string, start, end time.Time, description *string, stock int32) *Timetable {
+func NewTimetable(eventId uuid.UUID, name string, start, end time.Time, description *string, stock int32, price *int64) *Timetable {
 	return &Timetable{
 		ID:          uuid.New(),
 		EventID:     eventId,
@@ -26,6 +28,7 @@ func NewTimetable(eventId uuid.UUID, name string, start, end time.Time, descript
 		End:         end,
 		Description: description,
 		Stock:       stock,
+		Price:       price,
 	}
 }
 

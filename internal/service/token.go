@@ -2,11 +2,10 @@ package service
 
 import (
 	"fmt"
-	"github.com/bloomingbug/depublic/pkg/scheduler"
-	"github.com/labstack/echo/v4"
-
 	"github.com/bloomingbug/depublic/internal/entity"
 	"github.com/bloomingbug/depublic/internal/repository"
+	"github.com/bloomingbug/depublic/pkg/scheduler"
+	"github.com/labstack/echo/v4"
 )
 
 type tokenService struct {
@@ -48,7 +47,11 @@ func (s *tokenService) GenerateTokenForgotPassword(c echo.Context, email string)
 		return nil, err
 	}
 
-	link := fmt.Sprintf("%sapi/auth/reset-password", c.Request().Host)
+	schema := "http://"
+	if c.Request().TLS != nil {
+		schema = "https://"
+	}
+	link := fmt.Sprintf("%s%sapi/auth/reset-password?token=%v", schema, c.Request().Host, token.ID)
 
 	s.scheduler.SendToken(email, link, token.ID)
 	return token, nil

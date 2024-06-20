@@ -22,13 +22,6 @@ var (
 func AppPublicRoutes(h map[string]interface{}) []*route.Route {
 	return []*route.Route{
 		{
-			Method: http.MethodGet,
-			Path:   "/public",
-			Handler: func(c echo.Context) error {
-				return h["hello"].(*handler.HelloHandler).Say(c)
-			},
-		},
-		{
 			Method: http.MethodPost,
 			Path:   "/request-otp",
 			Handler: func(c echo.Context) error {
@@ -90,10 +83,10 @@ func AppPublicRoutes(h map[string]interface{}) []*route.Route {
 func AppPrivateRoutes(h map[string]interface{}) []*route.Route {
 	return []*route.Route{
 		{
-			Method: http.MethodGet,
-			Path:   "/private",
+			Method: http.MethodPost,
+			Path:   "/events/:id",
 			Handler: func(c echo.Context) error {
-				return h["hello"].(*handler.HelloHandler).Say(c)
+				return h["transaction"].(*handler.TransactionHandler).CreateTransaction(c)
 			},
 			Roles: allRoles,
 		},

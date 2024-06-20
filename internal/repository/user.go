@@ -35,7 +35,7 @@ func (r *userRepository) Edit(c context.Context, user *entity.User) (*entity.Use
 		field := val.Field(i)
 		fieldName := val.Type().Field(i).Name
 
-		if !field.IsZero() {
+		if !field.IsZero() || !field.IsNil() {
 			reflect.ValueOf(&fields).Elem().FieldByName(fieldName).Set(field)
 		}
 	}

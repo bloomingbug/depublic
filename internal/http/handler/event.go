@@ -4,6 +4,7 @@ import (
 	"github.com/bloomingbug/depublic/internal/http/binder"
 	"github.com/bloomingbug/depublic/internal/service"
 	"github.com/bloomingbug/depublic/pkg/response"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -15,7 +16,7 @@ type EventHandler struct {
 func (h *EventHandler) GetAllEvent(c echo.Context) error {
 	paginateReq := new(binder.PaginateRequest)
 	if err := c.Bind(paginateReq); err != nil {
-		c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, err.Error()))
+		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, err.Error()))
 	}
 
 	page := h.getDefaultInt(paginateReq.Page, 1)
@@ -27,7 +28,7 @@ func (h *EventHandler) GetAllEvent(c echo.Context) error {
 
 	filterReq := new(binder.FilterRequest)
 	if err := c.Bind(filterReq); err != nil {
-		c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, err.Error()))
+		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, err.Error()))
 	}
 
 	filter := &binder.FilterRequest{
@@ -41,7 +42,7 @@ func (h *EventHandler) GetAllEvent(c echo.Context) error {
 
 	sortReq := new(binder.SortRequest)
 	if err := c.Bind(sortReq); err != nil {
-		c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, err.Error()))
+		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, err.Error()))
 	}
 
 	sort := &binder.SortRequest{
@@ -61,7 +62,12 @@ func (h *EventHandler) GetAllEvent(c echo.Context) error {
 
 func (h *EventHandler) GetDetailEvent(c echo.Context) error {
 	id := c.Param("id")
-	event, err := h.eventService.FindEventById(c, id)
+	eventId, err := uuid.Parse(id)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, response.Error(http.StatusNotFound, false, err.Error()))
+	}
+
+	event, err := h.eventService.FindEventById(c, eventId)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, response.Error(http.StatusNotFound, false, err.Error()))
 	}

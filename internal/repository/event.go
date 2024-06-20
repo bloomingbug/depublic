@@ -5,6 +5,7 @@ import (
 	"github.com/bloomingbug/depublic/internal/entity"
 	"github.com/bloomingbug/depublic/internal/http/binder"
 	"github.com/bloomingbug/depublic/internal/util"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -54,7 +55,7 @@ func (r *eventRepository) GetAllWithPaginateAndFilter(c context.Context,
 	return events, totalItems, nil
 }
 
-func (r *eventRepository) FindById(c context.Context, id string) (*entity.Event, error) {
+func (r *eventRepository) FindById(c context.Context, id uuid.UUID) (*entity.Event, error) {
 	event := new(entity.Event)
 	if err := r.db.WithContext(c).
 		Where("id = ?", id).
@@ -73,7 +74,7 @@ func (r *eventRepository) FindById(c context.Context, id string) (*entity.Event,
 type EventRepository interface {
 	GetAll(c context.Context) ([]entity.Event, error)
 	GetAllWithPaginateAndFilter(c context.Context, paginate binder.PaginateRequest, filter binder.FilterRequest, sort binder.SortRequest) ([]entity.Event, int64, error)
-	FindById(c context.Context, id string) (*entity.Event, error)
+	FindById(c context.Context, id uuid.UUID) (*entity.Event, error)
 }
 
 func NewEventRepository(db *gorm.DB) EventRepository {

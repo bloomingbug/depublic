@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS public.timetables (
     "end" TIMESTAMP NOT NULL,
     description TEXT,
     stock INT NOT NULL DEFAULT 0,
+    price INT NOT NULL DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
     deleted_at TIMESTAMP
