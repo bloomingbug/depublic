@@ -14,9 +14,9 @@ const (
 )
 
 var (
-	allRoles = []string{Administrator, Buyer}
-	// onlyAdmin = []string{Administrator}
-	// onlyBuyer = []string{Buyer}
+	//allRoles = []string{Administrator, Buyer}
+	onlyAdmin = []string{Administrator}
+	onlyBuyer = []string{Buyer}
 )
 
 func AppPublicRoutes(h map[string]interface{}) []*route.Route {
@@ -79,7 +79,7 @@ func AppPublicRoutes(h map[string]interface{}) []*route.Route {
 		},
 		{
 			Method: http.MethodPost,
-			Path:   "/transactions/webhook",
+			Path:   "/payment",
 			Handler: func(c echo.Context) error {
 				return h["transaction"].(*handler.TransactionHandler).WebHookTransaction(c)
 			},
@@ -95,7 +95,23 @@ func AppPrivateRoutes(h map[string]interface{}) []*route.Route {
 			Handler: func(c echo.Context) error {
 				return h["transaction"].(*handler.TransactionHandler).CreateTransaction(c)
 			},
-			Roles: allRoles,
+			Roles: onlyBuyer,
+		},
+		{
+			Method: http.MethodGet,
+			Path:   "/ticket",
+			Handler: func(c echo.Context) error {
+				return h["ticket"].(*handler.TicketHandler).UseTicket(c)
+			},
+			Roles: onlyAdmin,
+		},
+		{
+			Method: http.MethodPost,
+			Path:   "/ticket",
+			Handler: func(c echo.Context) error {
+				return h["ticket"].(*handler.TicketHandler).UseTicket(c)
+			},
+			Roles: onlyAdmin,
 		},
 	}
 }

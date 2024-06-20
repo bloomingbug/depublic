@@ -14,3 +14,7 @@ type TicketRequest struct {
 	Gender      *entity.Gender `json:"gender" validate:"required,oneof=M F"`
 	TimetableID uuid.UUID      `json:"timetable_id" validate:"required,uuid"`
 }
+
+type UseTicketRequest struct {
+	NoTicket string `query:"no_ticket" json:"no_ticket" validate:"required"`
+}

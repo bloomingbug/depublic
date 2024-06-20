@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/bloomingbug/depublic/internal/entity"
 	"github.com/bloomingbug/depublic/internal/repository"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -15,6 +16,15 @@ func (s *transactionService) CreateTransaction(c echo.Context, transaction *enti
 	if err != nil {
 		return nil, err
 	}
+	return transaction, nil
+}
+
+func (s *transactionService) FindTransactionById(c echo.Context, id uuid.UUID) (*entity.Transaction, error) {
+	transaction, err := s.transactionRepo.FindById(c.Request().Context(), id)
+	if err != nil {
+		return nil, err
+	}
+
 	return transaction, nil
 }
 
@@ -37,6 +47,7 @@ func (s *transactionService) EditTransaction(c echo.Context, transaction *entity
 
 type TransactionService interface {
 	CreateTransaction(c echo.Context, transaction *entity.Transaction) (*entity.Transaction, error)
+	FindTransactionById(c echo.Context, id uuid.UUID) (*entity.Transaction, error)
 	FindTransactionByInvoice(c echo.Context, invoice string) (*entity.Transaction, error)
 	EditTransaction(c echo.Context, transaction *entity.Transaction) (*entity.Transaction, error)
 }

@@ -52,3 +52,10 @@ func NewTicket(params NewTicketParams) *Ticket {
 		TransactionID: params.TransactionID,
 	}
 }
+
+func UsedTicket(id uuid.UUID) *Ticket {
+	return &Ticket{
+		ID:      id,
+		IsValid: false,
+	}
+}

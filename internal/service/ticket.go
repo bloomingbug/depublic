@@ -29,8 +29,28 @@ func (s *ticketService) CreateBatchTicket(c echo.Context, transactionID uuid.UUI
 	return tickets, nil
 }
 
+func (s *ticketService) FindByNoTicket(c echo.Context, noTicket string) (*entity.Ticket, error) {
+	ticket, err := s.ticketRepo.FindByNoTicket(c.Request().Context(), noTicket)
+	if err != nil {
+		return nil, err
+	}
+
+	return ticket, nil
+}
+
+func (s *ticketService) EditTicket(c echo.Context, ticket *entity.Ticket) (*entity.Ticket, error) {
+	ticket, err := s.ticketRepo.Edit(c.Request().Context(), ticket)
+	if err != nil {
+		return nil, err
+	}
+
+	return ticket, nil
+}
+
 type TicketService interface {
 	CreateBatchTicket(c echo.Context, transactionID uuid.UUID, tickets *[]entity.Ticket) (*[]entity.Ticket, error)
+	FindByNoTicket(c echo.Context, noTicket string) (*entity.Ticket, error)
+	EditTicket(c echo.Context, tickets *entity.Ticket) (*entity.Ticket, error)
 }
 
 func NewTicketService(ticketRepo repository.TicketRepository) TicketService {

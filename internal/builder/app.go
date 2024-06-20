@@ -45,6 +45,8 @@ func BuildAppPublicRoutes(db *gorm.DB, redisDB *redis.Pool, jwtToken jwt_token.J
 
 	ticketRepository := repository.NewTicketRepository(db)
 	ticketService := service.NewTicketService(ticketRepository)
+	ticketHandler := handler.NewTicketHandler(ticketService, transactionService)
+	handlers["ticket"] = &ticketHandler
 
 	paymentService := service.NewPaymentService(paymentGateway)
 
@@ -68,6 +70,8 @@ func BuildAppPrivateRoutes(db *gorm.DB, redisDB *redis.Pool, jwtToken jwt_token.
 
 	ticketRepository := repository.NewTicketRepository(db)
 	ticketService := service.NewTicketService(ticketRepository)
+	ticketHandler := handler.NewTicketHandler(ticketService, transactionService)
+	handlers["ticket"] = &ticketHandler
 
 	paymentService := service.NewPaymentService(paymentGateway)
 

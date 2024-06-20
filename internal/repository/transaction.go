@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"github.com/bloomingbug/depublic/internal/entity"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"reflect"
 )
@@ -16,6 +17,14 @@ func (r *transactionRepository) Create(c context.Context, transaction *entity.Tr
 		return nil, err
 	}
 
+	return transaction, nil
+}
+
+func (r *transactionRepository) FindById(c context.Context, id uuid.UUID) (*entity.Transaction, error) {
+	transaction := new(entity.Transaction)
+	if err := r.db.WithContext(c).Where("id = ?", id).Take(transaction).Error; err != nil {
+		return nil, err
+	}
 	return transaction, nil
 }
 
@@ -48,6 +57,7 @@ func (r *transactionRepository) Edit(c context.Context, transaction *entity.Tran
 
 type TransactionRepository interface {
 	Create(c context.Context, transaction *entity.Transaction) (*entity.Transaction, error)
+	FindById(c context.Context, id uuid.UUID) (*entity.Transaction, error)
 	FindByInvoice(c context.Context, invoice string) (*entity.Transaction, error)
 	Edit(c context.Context, transaction *entity.Transaction) (*entity.Transaction, error)
 }
