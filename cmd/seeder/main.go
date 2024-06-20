@@ -10,10 +10,10 @@ func main() {
 	cfg, err := configs.NewConfig(".env")
 	checkError(err)
 
-	postgres, err := postgres.InitProgres(&cfg.Postgres)
+	db, err := postgres.InitProgres(&cfg.Postgres)
 	checkError(err)
 
-	seeds.CreateUserSeeds(postgres)
+	seeds.Run(db)
 }
 
 func checkError(err error) {

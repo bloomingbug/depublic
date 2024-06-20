@@ -1,6 +1,7 @@
 package form_validator
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -34,7 +35,8 @@ func NewFormValidator() *FormValidator {
 func ValidatorErrors(err error) map[string]string {
 	fields := map[string]string{}
 
-	if castedObject, ok := err.(validator.ValidationErrors); ok {
+	var castedObject validator.ValidationErrors
+	if errors.As(err, &castedObject) {
 		for _, err := range castedObject {
 			switch err.Tag() {
 			case "required":

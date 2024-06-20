@@ -7,6 +7,7 @@ import (
 	"github.com/bloomingbug/depublic/internal/http/form_validator"
 	"github.com/bloomingbug/depublic/pkg/cache"
 	"github.com/bloomingbug/depublic/pkg/jwt_token"
+	paymentGateway "github.com/bloomingbug/depublic/pkg/payment"
 	"github.com/bloomingbug/depublic/pkg/postgres"
 	"github.com/bloomingbug/depublic/pkg/scheduler"
 	"github.com/bloomingbug/depublic/pkg/server"
@@ -17,16 +18,18 @@ func main() {
 	cfg, err := configs.NewConfig(".env")
 	checkError(err)
 
-	postgres, err := postgres.InitProgres(&cfg.Postgres)
+	pg, err := postgres.InitProgres(&cfg.Postgres)
 	checkError(err)
 
 	redis := cache.InitCache(&cfg.Redis)
 
 	jwtToken := jwt_token.NewJwtToken(cfg.JWT.SecretKey)
-	scheduler := scheduler.NewScheduler(redis, cfg.Namespace)
+	sch := scheduler.NewScheduler(redis, cfg.Namespace)
 
-	publicRoutes := builder.BuildAppPublicRoutes(postgres, jwtToken, scheduler)
-	privateRoutes := builder.BuildAppPrivateRoutes(postgres, redis)
+	payment := paymentGateway.InitPaymentGateway(cfg)
+
+	publicRoutes := builder.BuildAppPublicRoutes(pg, redis, jwtToken, sch, payment)
+	privateRoutes := builder.BuildAppPrivateRoutes(pg, redis, jwtToken, sch, payment)
 
 	echoBinder := &echo.DefaultBinder{}
 	formValidator := form_validator.NewFormValidator()

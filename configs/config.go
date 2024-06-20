@@ -15,7 +15,8 @@ type Config struct {
 	JWT       JwtConfig      `envPrefix:"JWT_"`
 	Redis     RedisConfig    `envPrefix:"REDIS_"`
 	Namespace NamespaceConfig
-	SMTP      SMTPConfig `envPrefix:"SMTP_"`
+	SMTP      SMTPConfig     `envPrefix:"SMTP_"`
+	Midtrans  MidtransConfig `envPrefix:"MIDTRANS_"`
 }
 
 type PostgresConfig struct {
@@ -46,6 +47,11 @@ type SMTPConfig struct {
 	Username string `env:"USERNAME" envDefault:""`
 	Password string `env:"PASSWORD" envDefault:""`
 	Sender   string `env:"SENDER" envDefault:""`
+}
+
+type MidtransConfig struct {
+	ServerKey string `env:"SERVER_KEY" envDefault:""`
+	ClientKey string `env:"CLIENT_KEY" envDefault:""`
 }
 
 func NewConfig(path string) (*Config, error) {

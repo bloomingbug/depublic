@@ -6,16 +6,15 @@ import (
 	"github.com/bloomingbug/depublic/internal/repository"
 	"github.com/bloomingbug/depublic/internal/service"
 	"github.com/bloomingbug/depublic/pkg/jwt_token"
+	"github.com/bloomingbug/depublic/pkg/payment"
 	"github.com/bloomingbug/depublic/pkg/route"
 	"github.com/bloomingbug/depublic/pkg/scheduler"
 	"github.com/gomodule/redigo/redis"
 	"gorm.io/gorm"
 )
 
-func BuildAppPublicRoutes(db *gorm.DB, jwtToken jwt_token.JwtToken, scheduler scheduler.Scheduler) []*route.Route {
+func BuildAppPublicRoutes(db *gorm.DB, redisDB *redis.Pool, jwtToken jwt_token.JwtToken, scheduler scheduler.Scheduler, paymentGateway payment.PaymentGateway) []*route.Route {
 	handlers := make(map[string]interface{})
-	helloHandler := handler.NewHelloHandler()
-	handlers["hello"] = &helloHandler
 
 	otpRepository := repository.NewOneTimePasswordRepository(db)
 	otpService := service.NewOneTimePasswordService(otpRepository, scheduler)
@@ -33,13 +32,51 @@ func BuildAppPublicRoutes(db *gorm.DB, jwtToken jwt_token.JwtToken, scheduler sc
 	userHandler := handler.NewUserHandler(userService)
 	handlers["user"] = &userHandler
 
+	eventRepository := repository.NewEventRepository(db)
+	eventService := service.NewEventService(eventRepository)
+	eventHandler := handler.NewEventHandler(eventService)
+	handlers["event"] = &eventHandler
+
+	timetableRepository := repository.NewTimetableRepository(db)
+	timetableService := service.NewTimetableService(timetableRepository)
+
+	transactionRepository := repository.NewTransactionRepository(db)
+	transactionService := service.NewTransactionService(transactionRepository)
+
+	ticketRepository := repository.NewTicketRepository(db)
+	ticketService := service.NewTicketService(ticketRepository)
+	ticketHandler := handler.NewTicketHandler(ticketService, transactionService)
+	handlers["ticket"] = &ticketHandler
+
+	paymentService := service.NewPaymentService(paymentGateway)
+
+	transactionHandler := handler.NewTransactionHandler(eventService, timetableService, transactionService, ticketService, paymentService)
+	handlers["transaction"] = &transactionHandler
+
 	return router.AppPublicRoutes(handlers)
 }
 
-func BuildAppPrivateRoutes(db *gorm.DB, redisDB *redis.Pool) []*route.Route {
+func BuildAppPrivateRoutes(db *gorm.DB, redisDB *redis.Pool, jwtToken jwt_token.JwtToken, scheduler scheduler.Scheduler, paymentGateway payment.PaymentGateway) []*route.Route {
 	handlers := make(map[string]interface{})
 
-	helloHandler := handler.NewHelloHandler()
-	handlers["hello"] = &helloHandler
+	eventRepository := repository.NewEventRepository(db)
+	eventService := service.NewEventService(eventRepository)
+
+	timetableRepository := repository.NewTimetableRepository(db)
+	timetableService := service.NewTimetableService(timetableRepository)
+
+	transactionRepository := repository.NewTransactionRepository(db)
+	transactionService := service.NewTransactionService(transactionRepository)
+
+	ticketRepository := repository.NewTicketRepository(db)
+	ticketService := service.NewTicketService(ticketRepository)
+	ticketHandler := handler.NewTicketHandler(ticketService, transactionService)
+	handlers["ticket"] = &ticketHandler
+
+	paymentService := service.NewPaymentService(paymentGateway)
+
+	transactionHandler := handler.NewTransactionHandler(eventService, timetableService, transactionService, ticketService, paymentService)
+	handlers["transaction"] = &transactionHandler
+
 	return router.AppPrivateRoutes(handlers)
 }

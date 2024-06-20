@@ -14,20 +14,13 @@ const (
 )
 
 var (
-	allRoles = []string{Administrator, Buyer}
-	// onlyAdmin = []string{Administrator}
-	// onlyBuyer = []string{Buyer}
+	//allRoles = []string{Administrator, Buyer}
+	onlyAdmin = []string{Administrator}
+	onlyBuyer = []string{Buyer}
 )
 
 func AppPublicRoutes(h map[string]interface{}) []*route.Route {
 	return []*route.Route{
-		{
-			Method: http.MethodGet,
-			Path:   "/public",
-			Handler: func(c echo.Context) error {
-				return h["hello"].(*handler.HelloHandler).Say(c)
-			},
-		},
 		{
 			Method: http.MethodPost,
 			Path:   "/request-otp",
@@ -70,18 +63,55 @@ func AppPublicRoutes(h map[string]interface{}) []*route.Route {
 				return h["user"].(*handler.UserHandler).ResetPassword(c)
 			},
 		},
+		{
+			Method: http.MethodGet,
+			Path:   "/events",
+			Handler: func(c echo.Context) error {
+				return h["event"].(*handler.EventHandler).GetAllEvent(c)
+			},
+		},
+		{
+			Method: http.MethodGet,
+			Path:   "/events/:id",
+			Handler: func(c echo.Context) error {
+				return h["event"].(*handler.EventHandler).GetDetailEvent(c)
+			},
+		},
+		{
+			Method: http.MethodPost,
+			Path:   "/payment",
+			Handler: func(c echo.Context) error {
+				return h["transaction"].(*handler.TransactionHandler).WebHookTransaction(c)
+			},
+		},
 	}
 }
 
 func AppPrivateRoutes(h map[string]interface{}) []*route.Route {
 	return []*route.Route{
 		{
-			Method: http.MethodGet,
-			Path:   "/private",
+			Method: http.MethodPost,
+			Path:   "/events/:id",
 			Handler: func(c echo.Context) error {
-				return h["hello"].(*handler.HelloHandler).Say(c)
+				return h["transaction"].(*handler.TransactionHandler).CreateTransaction(c)
 			},
-			Roles: allRoles,
+			Roles: onlyBuyer,
+		},
+		{
+			Method: http.MethodGet,
+			Path:   "/admin/ticket",
+			Handler: func(c echo.Context) error {
+				return h["ticket"].(*handler.TicketHandler).UseTicket(c)
+			},
+			Roles: onlyAdmin,
+		},
+		{
+			Method: http.MethodPost,
+			Path:   "/admin/ticket",
+			Handler: func(c echo.Context) error {
+				return h["ticket"].(*handler.TicketHandler).UseTicket(c)
+			},
+			Roles: onlyAdmin,
 		},
 	}
 }

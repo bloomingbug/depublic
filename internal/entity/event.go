@@ -6,32 +6,30 @@ import (
 )
 
 type Event struct {
-	ID               uuid.UUID   `json:"id"`
-	Name             string      `json:"name"`
-	StartDate        time.Time   `json:"start_date"`
-	EndDate          *time.Time  `json:"end_date,omitempty"`
-	StartTime        time.Time   `json:"start_time"`
-	EndTime          *time.Time  `json:"end_time,omitempty"`
-	Address          string      `json:"address"`
-	AddressLink      string      `json:"address_link"`
-	Organizer        string      `json:"organizer"`
-	OrganizerLogo    *string     `json:"organizer_logo,omitempty"`
-	Cover            *string     `json:"cover,omitempty"`
-	Description      string      `json:"description"`
-	TermAndCondition string      `json:"term_and_condition"`
-	IsPaid           bool        `json:"is_paid"`
-	IsPublic         bool        `json:"is_public"`
-	IsApproved       bool        `json:"is_approved"`
-	ApprovedAt       *time.Time  `json:"approved_at,omitempty"`
-	UserID           uuid.UUID   `json:"-"`
-	User             User        `json:"user"`
-	LocationID       int64       `json:"-"`
-	Location         Location    `json:"location"`
-	CategoryID       int64       `json:"-"`
-	Category         Category    `json:"category"`
-	TopicID          int64       `json:"-"`
-	Topic            Topic       `json:"topic"`
-	Timetables       []Timetable `json:"timetables"`
+	ID               uuid.UUID    `json:"id"`
+	Name             string       `json:"name"`
+	Start            time.Time    `json:"start"`
+	End              time.Time    `json:"end"`
+	Address          string       `json:"address"`
+	AddressLink      string       `json:"address_link"`
+	Organizer        string       `json:"organizer"`
+	OrganizerLogo    *string      `json:"organizer_logo,omitempty"`
+	Cover            *string      `json:"cover,omitempty"`
+	Description      string       `json:"description"`
+	TermAndCondition string       `json:"term_and_condition"`
+	IsPaid           bool         `json:"is_paid"`
+	IsPublic         bool         `json:"is_public"`
+	IsApproved       bool         `json:"is_approved"`
+	ApprovedAt       *time.Time   `json:"approved_at,omitempty"`
+	UserID           uuid.UUID    `json:"-"`
+	User             *User        `gorm:"foreignKey:UserID;references:ID" json:"user,omitempty"`
+	LocationID       int64        `json:"-"`
+	Location         *Location    `gorm:"foreignKey:LocationID;references:ID" json:"location,omitempty"`
+	CategoryID       int64        `json:"-"`
+	Category         *Category    `gorm:"foreignKey:CategoryID;references:ID" json:"category,omitempty"`
+	TopicID          int64        `json:"-"`
+	Topic            *Topic       `gorm:"foreignKey:TopicID;references:ID" json:"topic,omitempty"`
+	Timetables       *[]Timetable `gorm:"foreignKey:EventID;references:ID" json:"timetables,omitempty"`
 	Auditable
 }
 
@@ -42,10 +40,8 @@ type NewEventParams struct {
 	LocationID       int64
 	CategoryID       int64
 	TopicID          int64
-	StartDate        time.Time
-	StartTime        time.Time
-	EndDate          *time.Time
-	EndTime          *time.Time
+	Start            time.Time
+	End              time.Time
 	Address          string
 	AddressLink      string
 	Organizer        string
@@ -71,10 +67,8 @@ func NewEvent(params NewEventParams) *Event {
 		LocationID:       params.LocationID,
 		CategoryID:       params.CategoryID,
 		TopicID:          params.TopicID,
-		StartDate:        params.StartDate,
-		EndDate:          params.EndDate,
-		StartTime:        params.StartTime,
-		EndTime:          params.EndTime,
+		Start:            params.Start,
+		End:              params.End,
 		Address:          params.Address,
 		AddressLink:      params.AddressLink,
 		Organizer:        params.Organizer,
@@ -104,10 +98,8 @@ type EditEventParams struct {
 	LocationID       int64
 	CategoryID       int64
 	TopicID          int64
-	StartDate        time.Time
-	StartTime        time.Time
-	EndDate          *time.Time
-	EndTime          *time.Time
+	Start            time.Time
+	End              time.Time
 	Address          string
 	AddressLink      string
 	Organizer        string
@@ -126,10 +118,8 @@ func EditEvent(params EditEventParams) *Event {
 		LocationID:       params.LocationID,
 		CategoryID:       params.CategoryID,
 		TopicID:          params.TopicID,
-		StartDate:        params.StartDate,
-		EndDate:          params.EndDate,
-		StartTime:        params.StartTime,
-		EndTime:          params.EndTime,
+		Start:            params.Start,
+		End:              params.End,
 		Address:          params.Address,
 		AddressLink:      params.AddressLink,
 		Organizer:        params.Organizer,
