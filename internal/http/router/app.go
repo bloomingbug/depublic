@@ -99,7 +99,7 @@ func AppPrivateRoutes(h map[string]interface{}) []*route.Route {
 		},
 		{
 			Method: http.MethodGet,
-			Path:   "/ticket",
+			Path:   "/admin/ticket",
 			Handler: func(c echo.Context) error {
 				return h["ticket"].(*handler.TicketHandler).UseTicket(c)
 			},
@@ -107,7 +107,7 @@ func AppPrivateRoutes(h map[string]interface{}) []*route.Route {
 		},
 		{
 			Method: http.MethodPost,
-			Path:   "/ticket",
+			Path:   "/admin/ticket",
 			Handler: func(c echo.Context) error {
 				return h["ticket"].(*handler.TicketHandler).UseTicket(c)
 			},
