@@ -1,8 +1,11 @@
 package handler
 
 import (
+	"github.com/bloomingbug/depublic/pkg/jwt_token"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/bloomingbug/depublic/internal/entity"
@@ -14,7 +17,8 @@ import (
 )
 
 type UserHandler struct {
-	userService service.UserService
+	userService        service.UserService
+	transactionService service.TransactionService
 }
 
 func (h *UserHandler) Registration(c echo.Context) error {
@@ -106,6 +110,34 @@ func (h *UserHandler) Profile(c echo.Context) error {
 	return c.JSON(http.StatusOK, response.Success(http.StatusOK, true, "berhasil mendapatkan profile user", user))
 }
 
-func NewUserHandler(userService service.UserService) UserHandler {
-	return UserHandler{userService}
+func (h *UserHandler) TransactionHistory(c echo.Context) error {
+	paginateReq := new(binder.PaginateRequest)
+	if err := c.Bind(paginateReq); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, err.Error()))
+	}
+
+	readReq := c.QueryParam("is_read")
+	var isRead *bool
+	readConv, err := strconv.ParseBool(readReq)
+	if err != nil {
+		isRead = nil
+	} else {
+		isRead = &readConv
+	}
+
+	dataUser, _ := c.Get("user").(*jwt.Token)
+	userClaims := dataUser.Claims.(*jwt_token.JwtCustomClaims)
+
+	transactions, err := h.transactionService.FindUserTransactionHistory(c, uuid.MustParse(userClaims.ID), paginateReq, isRead)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.Error(http.StatusInternalServerError, false, "gagal mendapatkan data transaksi"))
+	}
+
+	return c.JSON(http.StatusOK, response.Success(http.StatusOK, true, "berhasil mendapatkan history transaksi", transactions))
+}
+
+func NewUserHandler(userService service.UserService, transactionService service.TransactionService) UserHandler {
+	return UserHandler{userService: userService,
+		transactionService: transactionService,
+	}
 }

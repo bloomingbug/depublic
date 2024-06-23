@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"github.com/bloomingbug/depublic/internal/entity"
+	"github.com/bloomingbug/depublic/internal/http/binder"
+	"github.com/bloomingbug/depublic/internal/util"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"reflect"
@@ -26,6 +28,35 @@ func (r *transactionRepository) FindById(c context.Context, id uuid.UUID) (*enti
 		return nil, err
 	}
 	return transaction, nil
+}
+
+func (r *transactionRepository) FindByIdWithDetails(c context.Context,
+	id uuid.UUID,
+	paginate binder.PaginateRequest,
+	isRead *bool) ([]entity.Transaction, int64, error) {
+	var totalItems int64
+	transactions := make([]entity.Transaction, 0)
+
+	err := r.db.WithContext(c).
+		Model(&entity.Transaction{}).
+		Where("user_id = ?", id).
+		Count(&totalItems).Error
+	if err != nil || int(totalItems) <= 0 {
+		return nil, 0, err
+	}
+
+	query := r.db.WithContext(c).
+		Scopes(util.Paginate(*paginate.Page, *paginate.Limit)).
+		Where("user_id = ?", id).
+		Preload("Tickets.Timetable.Event")
+	if isRead != nil {
+		query = query.Where("is_read = ?", isRead)
+	}
+	err = query.Order("created_at asc").Find(&transactions).Error
+	if err != nil {
+		return nil, 0, err
+	}
+	return transactions, totalItems, nil
 }
 
 func (r *transactionRepository) FindByInvoice(c context.Context, invoice string) (*entity.Transaction, error) {
@@ -59,6 +90,7 @@ type TransactionRepository interface {
 	Create(c context.Context, transaction *entity.Transaction) (*entity.Transaction, error)
 	FindById(c context.Context, id uuid.UUID) (*entity.Transaction, error)
 	FindByInvoice(c context.Context, invoice string) (*entity.Transaction, error)
+	FindByIdWithDetails(c context.Context, id uuid.UUID, paginate binder.PaginateRequest, isRead *bool) ([]entity.Transaction, int64, error)
 	Edit(c context.Context, transaction *entity.Transaction) (*entity.Transaction, error)
 }
 

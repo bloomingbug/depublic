@@ -98,6 +98,14 @@ func AppPrivateRoutes(h map[string]interface{}) []*route.Route {
 			Roles: allRoles,
 		},
 		{
+			Method: http.MethodGet,
+			Path:   "/user/transactions",
+			Handler: func(c echo.Context) error {
+				return h["user"].(*handler.UserHandler).TransactionHistory(c)
+			},
+			Roles: allRoles,
+		},
+		{
 			Method: http.MethodPost,
 			Path:   "/events/:id",
 			Handler: func(c echo.Context) error {
