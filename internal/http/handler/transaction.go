@@ -22,6 +22,7 @@ type TransactionHandler struct {
 	timetableService   service.TimetableService
 	transactionService service.TransactionService
 	ticketService      service.TicketService
+	notifService       service.NotificationService
 	paymentGateway     service.PaymenService
 }
 
@@ -147,11 +148,15 @@ func (h *TransactionHandler) CreateTransaction(c echo.Context) error {
 	dataResponse := echo.Map{
 		"tickets": tickets,
 	}
+	notif := entity.NewNotification(uuid.MustParse(userClaims.ID), "Tiket Berhasil didapatkan", fmt.Sprintf("Anda berhasil mendapatkan tiket secara gratis untuk event %s", event.Name))
 	if event.IsPaid {
 		dataResponse = echo.Map{
 			"payment_url": payment,
 		}
+		notif = entity.NewNotification(uuid.MustParse(userClaims.ID), "Menunggu Pembayaran", fmt.Sprintf("Transaksi untuk event %s dengan total %v dapat dibayar melalui link %v", event.Name, transaction.GrandTotal, *payment))
 	}
+
+	h.notifService.CreateNotification(c, notif)
 
 	return c.JSON(http.StatusCreated, response.Success(http.StatusCreated,
 		true,
@@ -193,6 +198,9 @@ func (h *TransactionHandler) WebHookTransaction(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, response.Error(http.StatusUnprocessableEntity, false, err.Error()))
 	}
 
+	notif := entity.NewNotification(transaction.UserID, fmt.Sprintf("Status pembayaran untuk invoice %s", transaction.Invoice), fmt.Sprintf("Pembayaran untuk invoice nomor %s: %s", transaction.Invoice, status))
+	h.notifService.CreateNotification(c, notif)
+
 	return c.JSON(http.StatusOK, response.Success(http.StatusOK,
 		true,
 		"berhasil update status transaksi",
@@ -212,12 +220,14 @@ func NewTransactionHandler(eventService service.EventService,
 	timetableService service.TimetableService,
 	transactionService service.TransactionService,
 	ticketService service.TicketService,
+	notifService service.NotificationService,
 	paymentGateway service.PaymenService) TransactionHandler {
 	return TransactionHandler{
 		eventService:       eventService,
 		timetableService:   timetableService,
 		transactionService: transactionService,
 		ticketService:      ticketService,
+		notifService:       notifService,
 		paymentGateway:     paymentGateway,
 	}
 }

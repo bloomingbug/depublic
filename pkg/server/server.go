@@ -30,7 +30,7 @@ func NewServer(cfg *configs.Config, binder *binder.Binder, publicRoutes, private
 
 	e.Use(
 		middleware.Logger(),
-		middleware.Recover(),
+		//middleware.Recover(),
 		middleware.CORS(),
 	)
 

@@ -14,7 +14,7 @@ const (
 )
 
 var (
-	//allRoles = []string{Administrator, Buyer}
+	allRoles  = []string{Administrator, Buyer}
 	onlyAdmin = []string{Administrator}
 	onlyBuyer = []string{Buyer}
 )
@@ -89,6 +89,38 @@ func AppPublicRoutes(h map[string]interface{}) []*route.Route {
 
 func AppPrivateRoutes(h map[string]interface{}) []*route.Route {
 	return []*route.Route{
+		{
+			Method: http.MethodGet,
+			Path:   "/user/profile",
+			Handler: func(c echo.Context) error {
+				return h["user"].(*handler.UserHandler).Profile(c)
+			},
+			Roles: allRoles,
+		},
+		{
+			Method: http.MethodGet,
+			Path:   "/user/transactions",
+			Handler: func(c echo.Context) error {
+				return h["user"].(*handler.UserHandler).TransactionHistory(c)
+			},
+			Roles: allRoles,
+		},
+		{
+			Method: http.MethodGet,
+			Path:   "/user/notifications",
+			Handler: func(c echo.Context) error {
+				return h["user"].(*handler.UserHandler).Notifications(c)
+			},
+			Roles: allRoles,
+		},
+		{
+			Method: http.MethodGet,
+			Path:   "/user/notifications/:id",
+			Handler: func(c echo.Context) error {
+				return h["user"].(*handler.UserHandler).ReadNotification(c)
+			},
+			Roles: allRoles,
+		},
 		{
 			Method: http.MethodPost,
 			Path:   "/events/:id",

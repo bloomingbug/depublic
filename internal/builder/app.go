@@ -28,10 +28,6 @@ func BuildAppPublicRoutes(db *gorm.DB, redisDB *redis.Pool, jwtToken jwt_token.J
 	tokenHandler := handler.NewTokenHandler(tokenService)
 	handlers["token"] = &tokenHandler
 
-	userService := service.NewUserService(tokenRepository, userRepository, jwtToken)
-	userHandler := handler.NewUserHandler(userService)
-	handlers["user"] = &userHandler
-
 	eventRepository := repository.NewEventRepository(db)
 	eventService := service.NewEventService(eventRepository)
 	eventHandler := handler.NewEventHandler(eventService)
@@ -50,14 +46,24 @@ func BuildAppPublicRoutes(db *gorm.DB, redisDB *redis.Pool, jwtToken jwt_token.J
 
 	paymentService := service.NewPaymentService(paymentGateway)
 
-	transactionHandler := handler.NewTransactionHandler(eventService, timetableService, transactionService, ticketService, paymentService)
+	notificationRepository := repository.NewNotificationRepository(db)
+	notificationService := service.NewNotificationService(notificationRepository)
+
+	transactionHandler := handler.NewTransactionHandler(eventService, timetableService, transactionService, ticketService, notificationService, paymentService)
 	handlers["transaction"] = &transactionHandler
+
+	userService := service.NewUserService(tokenRepository, userRepository, jwtToken)
+	userHandler := handler.NewUserHandler(userService, transactionService, notificationService)
+	handlers["user"] = &userHandler
 
 	return router.AppPublicRoutes(handlers)
 }
 
 func BuildAppPrivateRoutes(db *gorm.DB, redisDB *redis.Pool, jwtToken jwt_token.JwtToken, scheduler scheduler.Scheduler, paymentGateway payment.PaymentGateway) []*route.Route {
 	handlers := make(map[string]interface{})
+
+	tokenRepository := repository.NewTokenRepository(db)
+	userRepository := repository.NewUserRepository(db)
 
 	eventRepository := repository.NewEventRepository(db)
 	eventService := service.NewEventService(eventRepository)
@@ -75,8 +81,15 @@ func BuildAppPrivateRoutes(db *gorm.DB, redisDB *redis.Pool, jwtToken jwt_token.
 
 	paymentService := service.NewPaymentService(paymentGateway)
 
-	transactionHandler := handler.NewTransactionHandler(eventService, timetableService, transactionService, ticketService, paymentService)
+	notificationRepository := repository.NewNotificationRepository(db)
+	notificationService := service.NewNotificationService(notificationRepository)
+
+	transactionHandler := handler.NewTransactionHandler(eventService, timetableService, transactionService, ticketService, notificationService, paymentService)
 	handlers["transaction"] = &transactionHandler
+
+	userService := service.NewUserService(tokenRepository, userRepository, jwtToken)
+	userHandler := handler.NewUserHandler(userService, transactionService, notificationService)
+	handlers["user"] = &userHandler
 
 	return router.AppPrivateRoutes(handlers)
 }
