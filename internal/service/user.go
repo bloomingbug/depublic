@@ -141,6 +141,17 @@ func (s *userService) Login(c context.Context, email, password string) (string, 
 	return token, nil
 }
 
+func (s *userService) GetProfile(c context.Context, userAuth *jwt.Token) (*entity.User, error) {
+	userClaims, _ := userAuth.Claims.(*jwt_token.JwtCustomClaims)
+
+	user, err := s.userRepository.FindById(c, uuid.MustParse(userClaims.ID))
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 func (s *userService) FindUserByEmail(c context.Context, email string) (*entity.User, error) {
 	user, err := s.userRepository.FindByEmail(c, email)
 	if err != nil {
@@ -187,6 +198,7 @@ func (s *userService) ChangePassword(c context.Context, token, password string) 
 type UserService interface {
 	UserRegistration(c echo.Context, token string, user *entity.User) (*entity.User, error)
 	Login(c context.Context, email, password string) (string, error)
+	GetProfile(c context.Context, userAuth *jwt.Token) (*entity.User, error)
 	FindUserByEmail(c context.Context, email string) (*entity.User, error)
 	ChangePassword(c context.Context, token, password string) error
 }

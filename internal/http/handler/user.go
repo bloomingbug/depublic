@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/golang-jwt/jwt/v5"
 	"net/http"
 	"time"
 
@@ -92,6 +93,17 @@ func (h *UserHandler) ResetPassword(c echo.Context) error {
 		false,
 		"success",
 		nil))
+}
+
+func (h *UserHandler) Profile(c echo.Context) error {
+	userAuth, _ := c.Get("user").(*jwt.Token)
+
+	user, err := h.userService.GetProfile(c.Request().Context(), userAuth)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Error(http.StatusInternalServerError, false, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, response.Success(http.StatusOK, true, "berhasil mendapatkan profile user", user))
 }
 
 func NewUserHandler(userService service.UserService) UserHandler {

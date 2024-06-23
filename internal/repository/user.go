@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"reflect"
 
 	"github.com/bloomingbug/depublic/internal/entity"
@@ -16,6 +17,15 @@ func (r *userRepository) Create(c context.Context, user *entity.User) (*entity.U
 	if err := r.db.WithContext(c).Create(user).Error; err != nil {
 		return nil, err
 	}
+	return user, nil
+}
+
+func (r *userRepository) FindById(c context.Context, id uuid.UUID) (*entity.User, error) {
+	user := new(entity.User)
+	if err := r.db.WithContext(c).Where("id = ?", id).Take(&user).Error; err != nil {
+		return nil, err
+	}
+
 	return user, nil
 }
 
@@ -55,6 +65,7 @@ func (r *userRepository) Delete(c context.Context, user *entity.User) error {
 
 type UserRepository interface {
 	Create(c context.Context, user *entity.User) (*entity.User, error)
+	FindById(c context.Context, id uuid.UUID) (*entity.User, error)
 	FindByEmail(c context.Context, email string) (*entity.User, error)
 	Edit(c context.Context, user *entity.User) (*entity.User, error)
 	Delete(c context.Context, user *entity.User) error
