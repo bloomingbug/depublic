@@ -28,10 +28,6 @@ func BuildAppPublicRoutes(db *gorm.DB, redisDB *redis.Pool, jwtToken jwt_token.J
 	tokenHandler := handler.NewTokenHandler(tokenService)
 	handlers["token"] = &tokenHandler
 
-	userService := service.NewUserService(tokenRepository, userRepository, jwtToken)
-	userHandler := handler.NewUserHandler(userService)
-	handlers["user"] = &userHandler
-
 	eventRepository := repository.NewEventRepository(db)
 	eventService := service.NewEventService(eventRepository)
 	eventHandler := handler.NewEventHandler(eventService)
@@ -53,6 +49,13 @@ func BuildAppPublicRoutes(db *gorm.DB, redisDB *redis.Pool, jwtToken jwt_token.J
 	transactionHandler := handler.NewTransactionHandler(eventService, timetableService, transactionService, ticketService, paymentService)
 	handlers["transaction"] = &transactionHandler
 
+	notificationRepository := repository.NewNotificationRepository(db)
+	notificationService := service.NewNotificationService(notificationRepository)
+
+	userService := service.NewUserService(tokenRepository, userRepository, jwtToken)
+	userHandler := handler.NewUserHandler(userService, transactionService, notificationService)
+	handlers["user"] = &userHandler
+
 	return router.AppPublicRoutes(handlers)
 }
 
@@ -61,10 +64,6 @@ func BuildAppPrivateRoutes(db *gorm.DB, redisDB *redis.Pool, jwtToken jwt_token.
 
 	tokenRepository := repository.NewTokenRepository(db)
 	userRepository := repository.NewUserRepository(db)
-
-	userService := service.NewUserService(tokenRepository, userRepository, jwtToken)
-	userHandler := handler.NewUserHandler(userService)
-	handlers["user"] = &userHandler
 
 	eventRepository := repository.NewEventRepository(db)
 	eventService := service.NewEventService(eventRepository)
@@ -84,6 +83,13 @@ func BuildAppPrivateRoutes(db *gorm.DB, redisDB *redis.Pool, jwtToken jwt_token.
 
 	transactionHandler := handler.NewTransactionHandler(eventService, timetableService, transactionService, ticketService, paymentService)
 	handlers["transaction"] = &transactionHandler
+
+	notificationRepository := repository.NewNotificationRepository(db)
+	notificationService := service.NewNotificationService(notificationRepository)
+
+	userService := service.NewUserService(tokenRepository, userRepository, jwtToken)
+	userHandler := handler.NewUserHandler(userService, transactionService, notificationService)
+	handlers["user"] = &userHandler
 
 	return router.AppPrivateRoutes(handlers)
 }

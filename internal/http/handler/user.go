@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/bloomingbug/depublic/internal/entity"
@@ -19,6 +20,7 @@ import (
 type UserHandler struct {
 	userService        service.UserService
 	transactionService service.TransactionService
+	notifService       service.NotificationService
 }
 
 func (h *UserHandler) Registration(c echo.Context) error {
@@ -116,19 +118,17 @@ func (h *UserHandler) TransactionHistory(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, err.Error()))
 	}
 
-	readReq := c.QueryParam("is_read")
-	var isRead *bool
-	readConv, err := strconv.ParseBool(readReq)
-	if err != nil {
-		isRead = nil
-	} else {
-		isRead = &readConv
+	page := h.getDefaultInt(paginateReq.Page, 1)
+	limit := h.getDefaultInt(paginateReq.Limit, 10)
+	paginate := &binder.PaginateRequest{
+		Page:  &page,
+		Limit: &limit,
 	}
 
 	dataUser, _ := c.Get("user").(*jwt.Token)
 	userClaims := dataUser.Claims.(*jwt_token.JwtCustomClaims)
 
-	transactions, err := h.transactionService.FindUserTransactionHistory(c, uuid.MustParse(userClaims.ID), paginateReq, isRead)
+	transactions, err := h.transactionService.FindUserTransactionHistory(c, uuid.MustParse(userClaims.ID), paginate)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.Error(http.StatusInternalServerError, false, "gagal mendapatkan data transaksi"))
 	}
@@ -136,8 +136,64 @@ func (h *UserHandler) TransactionHistory(c echo.Context) error {
 	return c.JSON(http.StatusOK, response.Success(http.StatusOK, true, "berhasil mendapatkan history transaksi", transactions))
 }
 
-func NewUserHandler(userService service.UserService, transactionService service.TransactionService) UserHandler {
-	return UserHandler{userService: userService,
+func (h *UserHandler) Notifications(c echo.Context) error {
+	paginateReq := new(binder.PaginateRequest)
+	if err := c.Bind(paginateReq); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Error(http.StatusBadRequest, false, err.Error()))
+	}
+
+	page := h.getDefaultInt(paginateReq.Page, 1)
+	limit := h.getDefaultInt(paginateReq.Limit, 5)
+	paginate := &binder.PaginateRequest{
+		Page:  &page,
+		Limit: &limit,
+	}
+
+	var isRead *bool
+	isReadReq := c.QueryParam("is_read")
+	if isReadReq == "" {
+		isRead = nil
+	} else {
+		parse, _ := strconv.ParseBool(isReadReq)
+		isRead = &parse
+	}
+
+	dataUser, _ := c.Get("user").(*jwt.Token)
+	userClaims := dataUser.Claims.(*jwt_token.JwtCustomClaims)
+
+	notifications, err := h.notifService.GetUserNotification(c, uuid.MustParse(userClaims.ID), paginate, isRead)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Error(http.StatusInternalServerError, false, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, response.Success(http.StatusOK, true, "berhasil mendapatkan data notifikasi", notifications))
+}
+
+func (h *UserHandler) ReadNotification(c echo.Context) error {
+	id := c.Param("id")
+	if strings.Trim(id, " ") == "" {
+		return c.JSON(http.StatusUnprocessableEntity, response.Error(http.StatusUnprocessableEntity, false, "id notifikasi tidak valid"))
+	}
+
+	notification, err := h.notifService.GetDetailNotification(c, uuid.MustParse(id))
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, response.Error(http.StatusUnprocessableEntity, false, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, response.Success(http.StatusOK, true, "berhasil mendapatkan detail notifikasi", notification))
+}
+
+func (h *UserHandler) getDefaultInt(value *int, defaultValue int) int {
+	if value != nil {
+		return *value
+	}
+	return defaultValue
+}
+
+func NewUserHandler(userService service.UserService, transactionService service.TransactionService, notifService service.NotificationService) UserHandler {
+	return UserHandler{
+		userService:        userService,
 		transactionService: transactionService,
+		notifService:       notifService,
 	}
 }

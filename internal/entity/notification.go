@@ -11,11 +11,18 @@ type Notification struct {
 	Auditable
 }
 
-func NewNotification(userId uuid.UUID, title, detail string, isRead bool) *Notification {
+func NewNotification(userId uuid.UUID, title, detail string) *Notification {
 	return &Notification{
 		UserID: userId,
 		Title:  title,
 		Detail: detail,
-		IsRead: isRead,
+		IsRead: false,
+	}
+}
+
+func ReadNotification(id uuid.UUID) *Notification {
+	return &Notification{
+		ID:     id,
+		IsRead: true,
 	}
 }

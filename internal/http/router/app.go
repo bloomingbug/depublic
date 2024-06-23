@@ -106,6 +106,22 @@ func AppPrivateRoutes(h map[string]interface{}) []*route.Route {
 			Roles: allRoles,
 		},
 		{
+			Method: http.MethodGet,
+			Path:   "/user/notifications",
+			Handler: func(c echo.Context) error {
+				return h["user"].(*handler.UserHandler).Notifications(c)
+			},
+			Roles: allRoles,
+		},
+		{
+			Method: http.MethodGet,
+			Path:   "/user/transactions/:id",
+			Handler: func(c echo.Context) error {
+				return h["user"].(*handler.UserHandler).ReadNotification(c)
+			},
+			Roles: allRoles,
+		},
+		{
 			Method: http.MethodPost,
 			Path:   "/events/:id",
 			Handler: func(c echo.Context) error {

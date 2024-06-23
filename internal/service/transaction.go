@@ -41,9 +41,8 @@ func (s *transactionService) FindTransactionByInvoice(c echo.Context, invoice st
 
 func (s *transactionService) FindUserTransactionHistory(c echo.Context,
 	id uuid.UUID,
-	paginate *binder.PaginateRequest,
-	isRead *bool) (*map[string]interface{}, error) {
-	transactions, totalItems, err := s.transactionRepo.FindByIdWithDetails(c.Request().Context(), id, *paginate, isRead)
+	paginate *binder.PaginateRequest) (*map[string]interface{}, error) {
+	transactions, totalItems, err := s.transactionRepo.FindByIdWithDetails(c.Request().Context(), id, *paginate)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +66,7 @@ type TransactionService interface {
 	CreateTransaction(c echo.Context, transaction *entity.Transaction) (*entity.Transaction, error)
 	FindTransactionById(c echo.Context, id uuid.UUID) (*entity.Transaction, error)
 	FindTransactionByInvoice(c echo.Context, invoice string) (*entity.Transaction, error)
-	FindUserTransactionHistory(c echo.Context, id uuid.UUID, paginate *binder.PaginateRequest, isRead *bool) (*map[string]interface{}, error)
+	FindUserTransactionHistory(c echo.Context, id uuid.UUID, paginate *binder.PaginateRequest) (*map[string]interface{}, error)
 	EditTransaction(c echo.Context, transaction *entity.Transaction) (*entity.Transaction, error)
 }
 
