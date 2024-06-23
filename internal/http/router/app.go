@@ -115,7 +115,7 @@ func AppPrivateRoutes(h map[string]interface{}) []*route.Route {
 		},
 		{
 			Method: http.MethodGet,
-			Path:   "/user/transactions/:id",
+			Path:   "/user/notifications/:id",
 			Handler: func(c echo.Context) error {
 				return h["user"].(*handler.UserHandler).ReadNotification(c)
 			},

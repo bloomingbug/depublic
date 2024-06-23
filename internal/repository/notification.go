@@ -34,13 +34,13 @@ func (r *notificationRepository) GetByUserIdWithPagination(c context.Context,
 
 	queryNotif := r.db.WithContext(c).
 		Scopes(util.Paginate(*paginate.Page, *paginate.Limit)).
-		Select("title", "is_read", "user_id").
+		Select("id", "title", "is_read", "user_id").
 		Where("user_id = ?", id)
 	if isRead != nil {
 		queryNotif = queryNotif.Where("is_read = ?", isRead)
 	}
 
-	err = queryNotif.Order("created_at asc").Find(&notifications).Error
+	err = queryNotif.Order("created_at desc").Find(&notifications).Error
 	if err != nil {
 		return nil, 0, err
 	}

@@ -175,7 +175,10 @@ func (h *UserHandler) ReadNotification(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, response.Error(http.StatusUnprocessableEntity, false, "id notifikasi tidak valid"))
 	}
 
-	notification, err := h.notifService.GetDetailNotification(c, uuid.MustParse(id))
+	dataUser, _ := c.Get("user").(*jwt.Token)
+	userClaims := dataUser.Claims.(*jwt_token.JwtCustomClaims)
+
+	notification, err := h.notifService.GetDetailNotification(c, uuid.MustParse(id), uuid.MustParse(userClaims.ID))
 	if err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, response.Error(http.StatusUnprocessableEntity, false, err.Error()))
 	}

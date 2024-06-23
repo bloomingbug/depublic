@@ -48,7 +48,7 @@ func (r *transactionRepository) FindByIdWithDetails(c context.Context,
 		Scopes(util.Paginate(*paginate.Page, *paginate.Limit)).
 		Where("user_id = ?", id).
 		Preload("Tickets.Timetable.Event").
-		Order("created_at asc").Find(&transactions).Error
+		Order("created_at desc").Find(&transactions).Error
 
 	if err != nil {
 		return nil, 0, err

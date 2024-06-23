@@ -46,11 +46,11 @@ func BuildAppPublicRoutes(db *gorm.DB, redisDB *redis.Pool, jwtToken jwt_token.J
 
 	paymentService := service.NewPaymentService(paymentGateway)
 
-	transactionHandler := handler.NewTransactionHandler(eventService, timetableService, transactionService, ticketService, paymentService)
-	handlers["transaction"] = &transactionHandler
-
 	notificationRepository := repository.NewNotificationRepository(db)
 	notificationService := service.NewNotificationService(notificationRepository)
+
+	transactionHandler := handler.NewTransactionHandler(eventService, timetableService, transactionService, ticketService, notificationService, paymentService)
+	handlers["transaction"] = &transactionHandler
 
 	userService := service.NewUserService(tokenRepository, userRepository, jwtToken)
 	userHandler := handler.NewUserHandler(userService, transactionService, notificationService)
@@ -81,11 +81,11 @@ func BuildAppPrivateRoutes(db *gorm.DB, redisDB *redis.Pool, jwtToken jwt_token.
 
 	paymentService := service.NewPaymentService(paymentGateway)
 
-	transactionHandler := handler.NewTransactionHandler(eventService, timetableService, transactionService, ticketService, paymentService)
-	handlers["transaction"] = &transactionHandler
-
 	notificationRepository := repository.NewNotificationRepository(db)
 	notificationService := service.NewNotificationService(notificationRepository)
+
+	transactionHandler := handler.NewTransactionHandler(eventService, timetableService, transactionService, ticketService, notificationService, paymentService)
+	handlers["transaction"] = &transactionHandler
 
 	userService := service.NewUserService(tokenRepository, userRepository, jwtToken)
 	userHandler := handler.NewUserHandler(userService, transactionService, notificationService)
