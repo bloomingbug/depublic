@@ -1,0 +1,109 @@
+package router
+
+import (
+	"net/http"
+
+	"github.com/bloomingbug/depublic/internal/http/handler"
+	"github.com/bloomingbug/depublic/pkg/route"
+	"github.com/labstack/echo/v4"
+)
+
+const (
+	Administrator = "Administrator"
+	Buyer         = "Buyer"
+)
+
+var (
+	allRoles = []string{Administrator, Buyer}
+	// onlyAdmin = []string{Administrator}
+	// onlyBuyer = []string{Buyer}
+)
+
+func AppPublicRoutes(h map[string]interface{}) []*route.Route {
+	return []*route.Route{
+		{
+			Method: http.MethodGet,
+			Path:   "/public",
+			Handler: func(c echo.Context) error {
+				return h["hello"].(*handler.HelloHandler).Say(c)
+			},
+		},
+		{
+			Method: http.MethodPost,
+			Path:   "/request-otp",
+			Handler: func(c echo.Context) error {
+				return h["otp"].(*handler.OneTimePasswordHandler).Generate(c)
+			},
+		},
+		{
+			Method: http.MethodPost,
+			Path:   "/verify-otp",
+			Handler: func(c echo.Context) error {
+				return h["token"].(*handler.TokenHandler).GenerateForRegister(c)
+			},
+		},
+		{
+			Method: http.MethodPost,
+			Path:   "/auth/register",
+			Handler: func(c echo.Context) error {
+				return h["user"].(*handler.UserHandler).Registration(c)
+			},
+		},
+		{
+			Method: http.MethodPost,
+			Path:   "/auth/login",
+			Handler: func(c echo.Context) error {
+				return h["user"].(*handler.UserHandler).Login(c)
+			},
+		},
+		{
+			Method: http.MethodPost,
+			Path:   "/forgot-password",
+			Handler: func(c echo.Context) error {
+				return h["token"].(*handler.TokenHandler).GenerateForForgotPassword(c)
+			},
+		},
+		{
+			Method: http.MethodPost,
+			Path:   "/reset-password",
+			Handler: func(c echo.Context) error {
+				return h["user"].(*handler.UserHandler).ResetPassword(c)
+			},
+		},
+		{
+			Method:  http.MethodPost,
+			Path:    "/locations",
+			Handler: func(c echo.Context) error { return h["location"].(*handler.LocationHandler).CreateLocation(c) },
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/events",
+			Handler: func(c echo.Context) error { return h["event"].(*handler.EventHandler).ListEvents(c) },
+		},
+	}
+}
+
+func AppPrivateRoutes(h map[string]interface{}) []*route.Route {
+	return []*route.Route{
+		{
+			Method: http.MethodGet,
+			Path:   "/private",
+			Handler: func(c echo.Context) error {
+				return h["hello"].(*handler.HelloHandler).Say(c)
+			},
+			Roles: allRoles,
+		},
+		{
+			Method:  http.MethodPut,
+			Path:    "/events/:id/approve",
+			Handler: func(c echo.Context) error { return h["event"].(*handler.EventHandler).ApproveEvent(c) },
+			Roles:   allRoles,
+		},
+		{
+			Method:  http.MethodPut,
+			Path:    "/events/:id/reject",
+			Handler: func(c echo.Context) error { return h["event"].(*handler.EventHandler).RejectEvent(c) },
+			Roles:   allRoles,
+		},
+	}
+}
