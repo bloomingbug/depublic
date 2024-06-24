@@ -1,4 +1,4 @@
-<p style="text-align: center"><a href="https://mikti.id" target="_blank"><img src="https://mikti.id/assets/images/resources/logo-1.png" width="400" alt="Mikti Logo"></a></p>
+<p align="center"><a href="https://mikti.id" target="_blank"><img src="https://mikti.id/assets/images/resources/logo-1.png" width="400" alt="Mikti Logo"></a></p>
 
 # 🎫 DEPUBLIC TICKETING: CAPSTONE PROJECT MIKTI STUDI INDEPENDEN
 
