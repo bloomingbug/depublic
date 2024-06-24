@@ -46,9 +46,9 @@ type NewEventParams struct {
 	AddressLink      string
 	Organizer        string
 	Description      string
-	TermAndCondition string
 	Cover            *string
 	OrganizerLogo    *string
+	TermAndCondition string
 	IsPaid           bool
 	IsPublic         bool
 	IsApproved       bool

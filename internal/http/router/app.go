@@ -145,5 +145,45 @@ func AppPrivateRoutes(h map[string]interface{}) []*route.Route {
 			},
 			Roles: onlyAdmin,
 		},
+		{
+			Method: http.MethodGet,
+			Path:   "/admin/events",
+			Handler: func(c echo.Context) error {
+				return h["event"].(*handler.EventHandler).GetAllEvent(c)
+			},
+			Roles: onlyAdmin,
+		},
+		{
+			Method: http.MethodGet,
+			Path:   "/admin/events/:id",
+			Handler: func(c echo.Context) error {
+				return h["event"].(*handler.EventHandler).GetDetailEventWithTicket(c)
+			},
+			Roles: onlyAdmin,
+		},
+		{
+			Method: http.MethodPost,
+			Path:   "/admin/events",
+			Handler: func(c echo.Context) error {
+				return h["event"].(*handler.EventHandler).CreateEvent(c)
+			},
+			Roles: onlyAdmin,
+		},
+		{
+			Method: http.MethodPut,
+			Path:   "/admin/events/:id",
+			Handler: func(c echo.Context) error {
+				return h["event"].(*handler.EventHandler).EditEvent(c)
+			},
+			Roles: onlyAdmin,
+		},
+		{
+			Method: http.MethodDelete,
+			Path:   "/admin/events/:id",
+			Handler: func(c echo.Context) error {
+				return h["event"].(*handler.EventHandler).DeleteEvent(c)
+			},
+			Roles: onlyAdmin,
+		},
 	}
 }
