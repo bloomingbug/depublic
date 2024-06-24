@@ -67,6 +67,8 @@ func BuildAppPrivateRoutes(db *gorm.DB, redisDB *redis.Pool, jwtToken jwt_token.
 
 	eventRepository := repository.NewEventRepository(db)
 	eventService := service.NewEventService(eventRepository)
+	eventHandler := handler.NewEventHandler(eventService)
+	handlers["event"] = &eventHandler
 
 	timetableRepository := repository.NewTimetableRepository(db)
 	timetableService := service.NewTimetableService(timetableRepository)
